@@ -11,7 +11,32 @@ import spikedog.casual.server.toolkit.FileServeHelper;
 public class FileHost extends CasualServer {
   private final String fileRootDir;
 
+  /**
+   * @param args --root is the root directory to serve from, --port to set the port.
+   */
   public static void main(String[] args) {
+    int port = 8080;
+    String rootDir = null;
+    try {
+      for (int i = 0; i < args.length; i += 2) {
+        String val = args[i];
+        if (val.equals("--port")) {
+          port = Integer.parseInt(args[i + 1]);
+        } else if (val.equals("--root")) {
+          rootDir = args[i + 1];
+        }
+      }
+    } catch (Exception e) {
+      System.err.println("Server initialisation failed, require even number of args");
+      return;
+    }
+
+    if (rootDir == null) {
+      System.err.println("Root serving directory must be provided via --root arg");
+      return;
+    }
+
+    System.out.println("Serving files in \"" + rootDir + "\" on port " + port);
     new FileHost("html", 8080).run();
   }
 

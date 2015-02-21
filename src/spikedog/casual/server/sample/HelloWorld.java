@@ -16,8 +16,24 @@ import spikedog.casual.server.StatusLine;
 public class HelloWorld extends CasualServer{
   private static final String BASIC_CONTENT = "<html><head></head><body><h1>yo!</hi></body></html>";
 
+  /**
+   * @param args --port to specify the socket port.
+   */
   public static void main(String[] args) {
-    new HelloWorld(8080).run();
+    int port = 8080;
+    try {
+      for (int i = 0; i < args.length; i += 2) {
+        String val = args[i];
+        if (val.equals("--port")) {
+          port = Integer.parseInt(args[i + 1]);
+        }
+      }
+    } catch (Exception e) {
+      System.err.println("Server initialisation failed, require even number of args");
+      return;
+    }
+
+    new HelloWorld(port).run();
   }
 
   public HelloWorld(int port) {

@@ -6,6 +6,7 @@ import java.io.IOException;
 import spikedog.casual.server.CasualServer;
 import spikedog.casual.server.Request;
 import spikedog.casual.server.Response;
+import spikedog.casual.server.toolkit.FileServeHelper;
 
 public class FileHost extends CasualServer {
   private final String fileRootDir;
@@ -26,6 +27,6 @@ public class FileHost extends CasualServer {
       fileUri = fileUri.substring(1);
     }
 
-    serveFile(new File(fileRootDir, fileUri), response);
+    FileServeHelper.serveFile(new File(fileRootDir, fileUri), response);
   }
 }

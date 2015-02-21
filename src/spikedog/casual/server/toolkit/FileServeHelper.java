@@ -16,14 +16,18 @@ import spikedog.casual.server.Response;
 import spikedog.casual.server.StatusLine;
 
 public final class FileServeHelper {
+  public static final String JSON_CONTENT_TYPE = "application/json; charset=UTF-8";
+
   private static final Map<String, String> MIME_TYPE_MAP = new HashMap<String, String>();
   static {
-    MIME_TYPE_MAP.put("html", "text/html; charset=utf-8");
-    MIME_TYPE_MAP.put("js", "text/javascript; charset=UTF-8");
     MIME_TYPE_MAP.put("css", "text/css; charset=UTF-8");
+    MIME_TYPE_MAP.put("gif", "image/gif");
+    MIME_TYPE_MAP.put("html", "text/html; charset=utf-8");
     MIME_TYPE_MAP.put("jpeg", "image/jpeg");
     MIME_TYPE_MAP.put("jpg", "image/jpeg");
+    MIME_TYPE_MAP.put("js", "text/javascript; charset=UTF-8");
     MIME_TYPE_MAP.put("png", "image/png");
+    MIME_TYPE_MAP.put("text", "text/plain; charset=UTF-8");
   }
 
   public static void serveFile(File file, Response response) throws IOException {

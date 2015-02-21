@@ -24,6 +24,7 @@ public class CasualServer {
   static {
     MIME_TYPE_MAP.put("html", "text/html; charset=utf-8");
     MIME_TYPE_MAP.put("js", "text/javascript; charset=UTF-8");
+    MIME_TYPE_MAP.put("css", "text/css; charset=UTF-8");
     MIME_TYPE_MAP.put("jpeg", "image/jpeg");
     MIME_TYPE_MAP.put("jpg", "image/jpeg");
     MIME_TYPE_MAP.put("png", "image/png");
@@ -152,7 +153,6 @@ public class CasualServer {
         contentType = MIME_TYPE_MAP.get(extension);
       }
     }
-    // TODO set up a map from file extensions to content-type
     serveFile(file, response, contentType);
   }
 

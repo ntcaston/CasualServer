@@ -15,7 +15,7 @@ public final class StatusLine {
     this.statusCode = statusCode;
     this.reasonPhrase = reasonPhrase;
   }
-  
+
   @Override
   public String toString() {
     return httpVersion + " " + statusCode + " " + reasonPhrase;

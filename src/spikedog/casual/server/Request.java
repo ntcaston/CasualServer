@@ -27,7 +27,7 @@ public final class Request {
     public void setContent(InputStream contentStream) {
       this.contentStream = contentStream;
     }
-    
+
     public Request build() {
       return new Request(requestLine, headers, contentStream);
     }
@@ -47,7 +47,7 @@ public final class Request {
   public RequestLine getRequestLine() {
     return requestLine;
   }
-  
+
   public String getFirstHeaderValue(String key) {
     List<String> vals = headerMap.get(key);
     if (vals == null || vals.isEmpty()) {
@@ -55,26 +55,26 @@ public final class Request {
     }
     return vals.get(0);
   }
-  
+
   public List<String> getHeaderValues(String key) {
     return headerMap.get(key);
   }
-  
+
   /** @return The headers of the request. Should not be modified. */
   public Map<String, List<String>> getHeaders() {
     return headerMap;
   }
-  
+
   public InputStream getContent() {
     return contentStream;
   }
-  
+
   // TODO should probaby remove this...
   public InputStream getTerminatingContent() {
     if (contentStream == null) {
       return null;
     }
-    
+
     String contentLengthHeader = getFirstHeaderValue("content-length");
     String transferEncodingHeader = getFirstHeaderValue("transfer-encoding");
     // TODO allow transferencoding value to be identity?

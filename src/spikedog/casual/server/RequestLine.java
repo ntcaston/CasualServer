@@ -11,7 +11,7 @@ public final class RequestLine {
   private final String method;
   private final String uri;
   private final String httpVersion;
-  
+
   public static RequestLine fromString(String requestLineString) {
     String[] parts = requestLineString.split(" ");
     if (parts.length != 3) {
@@ -20,40 +20,40 @@ public final class RequestLine {
     }
     return new RequestLine(parts[0], parts[1], parts[2]);
   }
-  
+
   public RequestLine(String method, String uri, String httpVersion) {
     this.method = method;
     this.uri = uri;
     this.httpVersion = httpVersion;
   }
-  
+
   public String getMethod() {
     return method;
   }
-  
+
   public String getUri() {
     return uri;
   }
-  
+
   public String getHttpVersion() {
     return httpVersion;
   }
-  
+
   @Override
   public String toString() {
     return method + " " + uri + " " + httpVersion;
   }
-  
+
   @Override
   public boolean equals(Object other) {
     if (other == null) {
       return false;
     }
-    
-    if (other == this) { 
+
+    if (other == this) {
       return true;
     }
-    
+
     if (!(other instanceof RequestLine)) {
       return false;
     }
@@ -62,7 +62,7 @@ public final class RequestLine {
         && this.uri == otherLine.uri
         && this.httpVersion == otherLine.httpVersion;
   }
-  
+
   @Override
   public int hashCode() {
     return Objects.hash(method, uri, httpVersion);

@@ -19,15 +19,15 @@ public class CasualServer {
   private static final byte CARRIAGE_RETURN_BYTE = (byte) '\r';
   private static final byte LINE_FEED_BYTE = (byte) '\n';
   private final int port;
-  
+
   protected CasualServer(int port) {
     this.port = port;
   }
-  
+
   private static String readLine(InputStream stream) throws IOException {
     StringBuilder headerLineBuilder = new StringBuilder();
     int b = -1;
-    
+
     byte lastByte = -1;
     // Wow! Such efficient!
     while ((b = stream.read()) != -1) {
@@ -56,7 +56,7 @@ public class CasualServer {
     while (true) {
       try {
         Socket remote = socket.accept();
-        
+
         // TODO make configurable. Socket factory.
         remote.setSoTimeout(10000);
         Request.Builder requestBuilder = new Request.Builder();
@@ -65,14 +65,14 @@ public class CasualServer {
         requestBuilder.setRequestLine(requestLine);
         String headerLine = null;
         Boolean canHaveMessageBody = null;
-        
+
         while (true) {
-          
+
           headerLine = readLine(in);
           if (headerLine.equals("")) {
             break;
           }
-          
+
           int split = headerLine.indexOf(':');
           String name = headerLine.substring(0, split).toLowerCase().trim();
           String valueSection = headerLine.substring(split + 1);
@@ -81,7 +81,7 @@ public class CasualServer {
           for (String value : valueParts) {
             values.add(value.trim());
           }
-          
+
           if (name.equals("content-length")) {
             int contentLength = values.isEmpty() ? 0 : Integer.parseInt(values.get(0));
             if (contentLength == 0 && canHaveMessageBody == null) {
@@ -99,9 +99,9 @@ public class CasualServer {
         if (canHaveMessageBody != null && canHaveMessageBody) {
           requestBuilder.setContent(remote.getInputStream());
         }
-        
+
         Request request = requestBuilder.build();
-        
+
         String method = request.getRequestLine().getMethod();
         try {
           if (method.equalsIgnoreCase("GET")) {
@@ -122,7 +122,7 @@ public class CasualServer {
       }
     }
   }
-  
+
   // TODO add other methods.
   protected void onGet(Request request, Response response) throws IOException {
     String resource = request.getRequestLine().getUri();
@@ -131,10 +131,10 @@ public class CasualServer {
     }
     serveFile(resource, response);
   }
-  
+
   protected void onPost(Request request, Response response) throws IOException {
   }
-  
+
   protected final void serveFile(String path, Response response) throws IOException {
     // TODO fix terrible security.
     if (path.charAt(0) == '/') {
@@ -145,7 +145,7 @@ public class CasualServer {
       response.setStatusLine(new StatusLine("HTTP/1.1", 404, "No such resource"));
       response.flush();
     }
-    
+
     InputStream fileInputStream = null;
     try {
       fileInputStream = new FileInputStream(f);

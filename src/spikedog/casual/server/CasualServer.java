@@ -125,22 +125,13 @@ public class CasualServer {
 
   // TODO add other methods.
   protected void onGet(Request request, Response response) throws IOException {
-    String resource = request.getRequestLine().getUri();
-    if (resource.equals("/")) {
-      resource = "index.html";
-    }
-    serveFile(resource, response);
   }
 
   protected void onPost(Request request, Response response) throws IOException {
   }
 
-  protected final void serveFile(String path, Response response) throws IOException {
+  protected final void serveFile(File f, Response response) throws IOException {
     // TODO fix terrible security.
-    if (path.charAt(0) == '/') {
-      path = path.substring(1);
-    }
-    File f = new File(path);
     if (!f.exists()) {
       response.setStatusLine(new StatusLine("HTTP/1.1", 404, "No such resource"));
       response.flush();

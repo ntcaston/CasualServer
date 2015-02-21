@@ -13,9 +13,9 @@ import spikedog.casual.server.StatusLine;
 /**
  * Super lame {@link CasualServer} demo.
  */
-public class SampleServer extends CasualServer{
+public class HelloWorld extends CasualServer{
   private static final String BASIC_CONTENT = "<html><head></head><body><h1>yo!</hi></body></html>";
-  public SampleServer(int port) {
+  public HelloWorld(int port) {
     super(port);
   }
 

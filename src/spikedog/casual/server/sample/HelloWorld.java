@@ -9,6 +9,7 @@ import spikedog.casual.server.CasualServer;
 import spikedog.casual.server.Request;
 import spikedog.casual.server.Response;
 import spikedog.casual.server.StatusLine;
+import spikedog.casual.server.util.Constants;
 
 /**
  * Super lame {@link CasualServer} demo.
@@ -50,13 +51,13 @@ public class HelloWorld extends CasualServer{
       InputStream body = new ByteArrayInputStream(bodyBytes);
       response.setBody(body);
 
-      response.addHeader("Content-Length", "" + bodyBytes.length);
-      response.addHeader("Content-Type", "text/html; charset=utf-8");
+      response.addHeader(Constants.HEADER_CONTENT_LENGTH, "" + bodyBytes.length);
+      response.addHeader(Constants.HEADER_CONTENT_TYPE, "text/html; charset=utf-8");
 
-      StatusLine statusLine = new StatusLine("HTTP/1.1", 200, "OK");
+      StatusLine statusLine = new StatusLine(Constants.VERISON_HTTP_1_1, 200, "OK");
       response.setStatusLine(statusLine);
     } catch (Exception e) {
-      StatusLine statusLine = new StatusLine("HTTP/1.1", 500, "Fail");
+      StatusLine statusLine = new StatusLine(Constants.VERISON_HTTP_1_1, 500, "Fail");
       response.setStatusLine(statusLine);
       response.setBody(null);
     }

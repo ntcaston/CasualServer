@@ -7,6 +7,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import spikedog.casual.server.util.Constants;
+
 /**
  * Server class intended for handling HTTP requests. Intended for subclassing.
  */
@@ -64,10 +66,10 @@ public class CasualServer {
         // Assign request to appropriate method.
         String method = request.getRequestLine().getMethod();
         try {
-          if (method.equalsIgnoreCase("GET")) {
+          if (method.equalsIgnoreCase(Constants.METHOD_GET)) {
             Response response = new Response(remote.getOutputStream());
             onGet(request, response);
-          } else if (method.equalsIgnoreCase("POST")) {
+          } else if (method.equalsIgnoreCase(Constants.METHOD_POST)) {
             Response response = new Response(remote.getOutputStream());
             onPost(request, response);
           }

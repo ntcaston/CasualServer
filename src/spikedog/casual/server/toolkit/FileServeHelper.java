@@ -8,10 +8,9 @@ import java.util.Map;
 
 import spikedog.casual.server.Response;
 import spikedog.casual.server.StatusLine;
+import spikedog.casual.server.util.Constants;
 
 public final class FileServeHelper {
-  public static final String JSON_CONTENT_TYPE = "application/json; charset=UTF-8";
-
   private static final Map<String, String> MIME_TYPE_MAP = new HashMap<String, String>();
   static {
     MIME_TYPE_MAP.put("gif", "image/gif");
@@ -40,7 +39,7 @@ public final class FileServeHelper {
       throws IOException {
     // TODO fix terrible security.
     if (!file.exists()) {
-      response.setStatusLine(new StatusLine("HTTP/1.1", 404, "No such resource"));
+      response.setStatusLine(new StatusLine(Constants.VERISON_HTTP_1_1, 404, "No such resource"));
       response.flush();
     }
 
@@ -50,14 +49,14 @@ public final class FileServeHelper {
       long contentLength = fileInputStream.getChannel().size();
 
       if (contentType != null) {
-        response.addHeader("Content-Type", contentType);
+        response.addHeader(Constants.HEADER_CONTENT_TYPE, contentType);
       }
-      response.addHeader("Content-Length", "" + contentLength);
+      response.addHeader(Constants.HEADER_CONTENT_LENGTH, "" + contentLength);
       response.setBody(fileInputStream);
-      response.setStatusLine(new StatusLine("HTTP/1.1", 200, "OK"));
+      response.setStatusLine(new StatusLine(Constants.VERISON_HTTP_1_1, 200, "OK"));
     } catch (Exception e) {
       e.printStackTrace();
-      response.setStatusLine(new StatusLine("HTTP/1.1", 500, e.getMessage()));
+      response.setStatusLine(new StatusLine(Constants.VERISON_HTTP_1_1, 500, e.getMessage()));
     }
     response.flush();
     if (fileInputStream != null) {

@@ -49,7 +49,7 @@ public class CasualServer {
           }
 
           int split = headerLine.indexOf(':');
-          String name = headerLine.substring(0, split).toLowerCase().trim();
+          String name = headerLine.substring(0, split).trim();
           String valueSection = headerLine.substring(split + 1);
           List<String> values = new ArrayList<String>();
           String[] valueParts = valueSection.split(",");

@@ -21,7 +21,7 @@ public final class Request {
     }
 
     public void setHeader(String name, List<String> values) {
-      headers.put(name, values);
+      headers.put(name.toLowerCase(), values);
     }
 
     public void setBody(InputStream body) {
@@ -48,7 +48,7 @@ public final class Request {
   }
 
   public String getFirstHeaderValue(String key) {
-    List<String> vals = headerMap.get(key);
+    List<String> vals = getHeaderValues(key);
     if (vals == null || vals.isEmpty()) {
       return null;
     }
@@ -56,7 +56,7 @@ public final class Request {
   }
 
   public List<String> getHeaderValues(String key) {
-    return headerMap.get(key);
+    return headerMap.get(key.toLowerCase());
   }
 
   /** @return The headers of the request. Should not be modified. */

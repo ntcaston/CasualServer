@@ -10,6 +10,9 @@ import spikedog.casual.server.Response;
 import spikedog.casual.server.StatusLine;
 import spikedog.casual.server.util.Constants;
 
+/**
+ * Assists in serving files as responses.
+ */
 public final class FileServeHelper {
   private static final Map<String, String> MIME_TYPE_MAP = new HashMap<String, String>();
   static {

@@ -8,6 +8,9 @@ import spikedog.casual.server.Request;
 import spikedog.casual.server.Response;
 import spikedog.casual.server.toolkit.FileServeHelper;
 
+/**
+ * Sample server which serves files from a provided root directory.
+ */
 public class FileHost extends CasualServer {
   private final String fileRootDir;
 
@@ -17,6 +20,7 @@ public class FileHost extends CasualServer {
   public static void main(String[] args) {
     int port = 8080;
     String rootDir = null;
+    // TODO pull this out into util or something?
     try {
       for (int i = 0; i < args.length; i += 2) {
         String val = args[i];
@@ -47,6 +51,7 @@ public class FileHost extends CasualServer {
 
   @Override
   protected void onGet(Request request, Response response) throws IOException {
+    // TODO deal with serving directory lists.
     String fileUri = request.getRequestLine().getUri();
     if (fileUri.equals("/")) {
       fileUri = "index.html";

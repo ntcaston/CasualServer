@@ -11,6 +11,8 @@ import spikedog.casual.server.util.Constants;
 
 /**
  * Server class intended for handling HTTP requests. Intended for subclassing.
+ * 
+ * Currently only compatible with HTTP/1.1.
  */
 public class CasualServer {
   private static final byte CARRIAGE_RETURN_BYTE = (byte) '\r';

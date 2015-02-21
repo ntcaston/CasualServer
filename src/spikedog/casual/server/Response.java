@@ -18,7 +18,7 @@ public final class Response {
 
   private final OutputStream out;
 
-  // TODO sorted set?
+  // TODO sorted set?.. map?
   private final List<String> headers = new ArrayList<String>();
   private StatusLine statusLine;
   private boolean statusLineWritten = false;
@@ -44,6 +44,8 @@ public final class Response {
     this.body = body;
   }
 
+  // TODO this is a bit weird... net to check it actually all makes sense and do lots of validation
+  // and error throwing and such.
   public void flush() throws IOException {
     if (!statusLineWritten && statusLine != null) {
       out.write(statusLine.toString().getBytes());

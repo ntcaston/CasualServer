@@ -41,36 +41,4 @@ public class HelloWorld extends CasualServer{
     response.flush();
     System.out.println("\n");
   }
-
-  @Override
-  protected void onPost(Request request, Response response) throws IOException {
-    System.out.println(request);
-    InputStream body = request.getTerminatingContent();
-    if (body == null) {
-      StatusLine statusLine = new StatusLine("HTTP/1.1", 400, "Cannot deal");
-      response.setStatusLine(statusLine);
-      response.flush();
-      return;
-    }
-
-    System.out.println("");
-    int n = 0;
-    byte[] buffer = new byte[4096];
-    StringBuilder responseContentBuilder = new StringBuilder();
-    while ((n = body.read(buffer)) != -1) {
-      String contentPart = new String(buffer, 0, n);
-      responseContentBuilder.append(contentPart);
-    }
-
-    StatusLine statusLine = new StatusLine("HTTP/1.1", 200, "OK");
-    response.setStatusLine(statusLine);
-    response.addHeader("Content-Type", request.getFirstHeaderValue("Content-Type"));
-    response.addHeader("Content-Length", request.getFirstHeaderValue("Content-Length"));
-
-    String responseContent = responseContentBuilder.toString();
-    System.out.println(responseContent);
-    response.setContent(new ByteArrayInputStream(responseContent.getBytes()));
-    response.flush();
-    System.out.println("\n");
-  }
 }

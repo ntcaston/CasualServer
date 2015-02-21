@@ -69,24 +69,6 @@ public final class Request {
     return contentStream;
   }
 
-  // TODO should probaby remove this...
-  public InputStream getTerminatingContent() {
-    if (contentStream == null) {
-      return null;
-    }
-
-    String contentLengthHeader = getFirstHeaderValue("content-length");
-    String transferEncodingHeader = getFirstHeaderValue("transfer-encoding");
-    // TODO allow transferencoding value to be identity?
-    if (contentLengthHeader != null && transferEncodingHeader == null) {
-      int contentLength = Integer.parseInt(contentLengthHeader);
-      if (contentLength > 0) {
-        return new TerminatingInputStream(contentStream, contentLength);
-      }
-    }
-    return null;
-  }
-
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder(requestLine.toString());

@@ -20,24 +20,6 @@ public class CasualServer {
     this.port = port;
   }
 
-  private static String readLine(InputStream stream) throws IOException {
-    StringBuilder headerLineBuilder = new StringBuilder();
-    int b = -1;
-
-    byte lastByte = -1;
-    // Wow! Such efficient!
-    while ((b = stream.read()) != -1) {
-      if (lastByte == CARRIAGE_RETURN_BYTE && b == LINE_FEED_BYTE) {
-        break;
-      }
-      if (lastByte > -1) {
-        headerLineBuilder.append((char) lastByte);
-      }
-      lastByte = (byte) b;
-    }
-    return headerLineBuilder.toString();
-  }
-
   // TODO deal with threads and such.
   @SuppressWarnings("resource")
   public final void run() {
@@ -59,12 +41,9 @@ public class CasualServer {
         InputStream in = remote.getInputStream();
         RequestLine requestLine = RequestLine.fromString(readLine(in));
         requestBuilder.setRequestLine(requestLine);
-        String headerLine = null;
-        Boolean canHaveMessageBody = null;
 
         while (true) {
-
-          headerLine = readLine(in);
+          String headerLine = readLine(in);
           if (headerLine.equals("")) {
             break;
           }
@@ -77,27 +56,12 @@ public class CasualServer {
           for (String value : valueParts) {
             values.add(value.trim());
           }
-
-          if (name.equals("content-length")) {
-            int contentLength = values.isEmpty() ? 0 : Integer.parseInt(values.get(0));
-            if (contentLength == 0 && canHaveMessageBody == null) {
-              canHaveMessageBody = false;
-            }
-            if (canHaveMessageBody == null) {
-              canHaveMessageBody = true;
-            }
-          } else if (name.equals("transfer-encoding") && canHaveMessageBody == null) {
-            canHaveMessageBody = true;
-          }
           requestBuilder.setHeader(name, values);
         }
-
-        if (canHaveMessageBody != null && canHaveMessageBody) {
-          requestBuilder.setContent(remote.getInputStream());
-        }
-
+        requestBuilder.setContent(remote.getInputStream());
         Request request = requestBuilder.build();
 
+        // Assign request to appropriate method.
         String method = request.getRequestLine().getMethod();
         try {
           if (method.equalsIgnoreCase("GET")) {
@@ -117,6 +81,24 @@ public class CasualServer {
         e.printStackTrace();
       }
     }
+  }
+
+  private static String readLine(InputStream stream) throws IOException {
+    StringBuilder headerLineBuilder = new StringBuilder();
+    int b = -1;
+
+    byte lastByte = -1;
+    // Wow! Such efficient!
+    while ((b = stream.read()) != -1) {
+      if (lastByte == CARRIAGE_RETURN_BYTE && b == LINE_FEED_BYTE) {
+        break;
+      }
+      if (lastByte > -1) {
+        headerLineBuilder.append((char) lastByte);
+      }
+      lastByte = (byte) b;
+    }
+    return headerLineBuilder.toString();
   }
 
   // TODO add other methods.

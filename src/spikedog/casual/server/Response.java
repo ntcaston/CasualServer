@@ -22,9 +22,9 @@ public final class Response {
   private final List<String> headers = new ArrayList<String>();
   private StatusLine statusLine;
   private boolean statusLineWritten = false;
-  private boolean begunWritingContent = false;
+  private boolean begunWritingBody = false;
   private int writtenHeaderCount = 0;
-  private InputStream content;
+  private InputStream body;
 
   Response(OutputStream out) {
     this.out = out;
@@ -40,8 +40,8 @@ public final class Response {
     headers.add(name + ": " + value);
   }
 
-  public void setContent(InputStream content) {
-    this.content = content;
+  public void setBody(InputStream body) {
+    this.body = body;
   }
 
   public void flush() throws IOException {
@@ -50,7 +50,7 @@ public final class Response {
       out.write(NEW_LINE_BYTES);
     }
 
-    if (headers.size() > writtenHeaderCount && !begunWritingContent) {
+    if (headers.size() > writtenHeaderCount && !begunWritingBody) {
       for (int headerIndex = writtenHeaderCount; headerIndex < headers.size(); headerIndex++) {
         out.write(headers.get(headerIndex).getBytes());
         out.write(NEW_LINE_BYTES);
@@ -58,12 +58,12 @@ public final class Response {
       writtenHeaderCount = headers.size();
     }
 
-    if (content != null) {
-      begunWritingContent = true;
+    if (body != null) {
+      begunWritingBody = true;
       out.write(NEW_LINE_BYTES);
       int n = 0;
       byte[] buffer = new byte[BUFFER_SIZE];
-      while ((n = content.read(buffer)) > 0) {
+      while ((n = body.read(buffer)) > 0) {
         out.write(buffer, 0, n);
       }
       out.close();

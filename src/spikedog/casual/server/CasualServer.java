@@ -58,7 +58,7 @@ public class CasualServer {
           }
           requestBuilder.setHeader(name, values);
         }
-        requestBuilder.setContent(remote.getInputStream());
+        requestBuilder.setBody(remote.getInputStream());
         Request request = requestBuilder.build();
 
         // Assign request to appropriate method.

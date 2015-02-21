@@ -13,7 +13,7 @@ import java.util.Map;
 public final class Request {
   public static final class Builder {
     private RequestLine requestLine;
-    private InputStream contentStream;
+    private InputStream body;
     private final Map<String, List<String>> headers = new HashMap<String, List<String>>();
 
     public void setRequestLine(RequestLine requestLine) {
@@ -24,24 +24,23 @@ public final class Request {
       headers.put(name, values);
     }
 
-    public void setContent(InputStream contentStream) {
-      this.contentStream = contentStream;
+    public void setBody(InputStream body) {
+      this.body = body;
     }
 
     public Request build() {
-      return new Request(requestLine, headers, contentStream);
+      return new Request(requestLine, headers, body);
     }
   }
 
   private final RequestLine requestLine;
   private final Map<String, List<String>> headerMap;
-  private final InputStream contentStream;
+  private final InputStream body;
 
-  private Request(RequestLine requestLine, Map<String, List<String>> headers,
-      InputStream contentStream) {
+  private Request(RequestLine requestLine, Map<String, List<String>> headers, InputStream body) {
     this.requestLine = requestLine;
     this.headerMap = headers;
-    this.contentStream = contentStream;
+    this.body = body;
   }
 
   public RequestLine getRequestLine() {
@@ -65,8 +64,8 @@ public final class Request {
     return headerMap;
   }
 
-  public InputStream getContent() {
-    return contentStream;
+  public InputStream getBody() {
+    return body;
   }
 
   @Override

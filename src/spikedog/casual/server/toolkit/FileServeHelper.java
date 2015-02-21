@@ -53,7 +53,7 @@ public final class FileServeHelper {
         response.addHeader("Content-Type", contentType);
       }
       response.addHeader("Content-Length", "" + contentLength);
-      response.setContent(fileInputStream);
+      response.setBody(fileInputStream);
       response.setStatusLine(new StatusLine("HTTP/1.1", 200, "OK"));
     } catch (Exception e) {
       e.printStackTrace();

@@ -25,6 +25,11 @@ public class CasualServer {
     this.port = port;
   }
 
+  /**
+   * Blocking call to run the server on endless loop. May be terminated with a call to
+   * {@link #close()}.
+   */
+  // TODO add safe close which ends after all pending requests have finished?
   public final void run() {
     try {
       socket = new ServerSocket(port);

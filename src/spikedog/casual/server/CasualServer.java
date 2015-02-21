@@ -22,7 +22,6 @@ public class CasualServer {
     this.port = port;
   }
 
-  // TODO deal with threads and such.
   @SuppressWarnings("resource")
   public final void run() {
     ServerSocket socket;
@@ -36,49 +35,61 @@ public class CasualServer {
     while (true) {
       try {
         Socket remote = socket.accept();
+        final Socket requestSocket = remote;
+        Thread requestThread = new Thread(new Runnable() {
+          @Override
+          public void run() {
+            try {
+              // TODO make configurable. Socket factory.
+              requestSocket.setSoTimeout(10000);
+              Request.Builder requestBuilder = new Request.Builder();
+              InputStream in = requestSocket.getInputStream();
+              RequestLine requestLine = RequestLine.fromString(readLine(in));
+              requestBuilder.setRequestLine(requestLine);
 
-        // TODO make configurable. Socket factory.
-        remote.setSoTimeout(10000);
-        Request.Builder requestBuilder = new Request.Builder();
-        InputStream in = remote.getInputStream();
-        RequestLine requestLine = RequestLine.fromString(readLine(in));
-        requestBuilder.setRequestLine(requestLine);
+              while (true) {
+                String headerLine = readLine(in);
+                if (headerLine.equals("")) {
+                  break;
+                }
 
-        while (true) {
-          String headerLine = readLine(in);
-          if (headerLine.equals("")) {
-            break;
+                int split = headerLine.indexOf(':');
+                String name = headerLine.substring(0, split).trim();
+                String valueSection = headerLine.substring(split + 1);
+                List<String> values = new ArrayList<String>();
+                String[] valueParts = valueSection.split(",");
+                for (String value : valueParts) {
+                  values.add(value.trim());
+                }
+                requestBuilder.setHeader(name, values);
+              }
+              requestBuilder.setBody(requestSocket.getInputStream());
+              Request request = requestBuilder.build();
+
+              // Assign request to appropriate method.
+              String method = request.getRequestLine().getMethod();
+              try {
+                if (method.equalsIgnoreCase(Constants.METHOD_GET)) {
+                  Response response = new Response(requestSocket.getOutputStream());
+                  onGet(request, response);
+                } else if (method.equalsIgnoreCase(Constants.METHOD_POST)) {
+                  Response response = new Response(requestSocket.getOutputStream());
+                  onPost(request, response);
+                }
+              } catch (Exception e) {
+                System.err.println("Error handling request for " + request.getRequestLine());
+                e.printStackTrace();
+              }
+
+              requestSocket.close();
+            } catch (Exception e) {
+              e.printStackTrace();
+            }
           }
-
-          int split = headerLine.indexOf(':');
-          String name = headerLine.substring(0, split).trim();
-          String valueSection = headerLine.substring(split + 1);
-          List<String> values = new ArrayList<String>();
-          String[] valueParts = valueSection.split(",");
-          for (String value : valueParts) {
-            values.add(value.trim());
-          }
-          requestBuilder.setHeader(name, values);
-        }
-        requestBuilder.setBody(remote.getInputStream());
-        Request request = requestBuilder.build();
-
-        // Assign request to appropriate method.
-        String method = request.getRequestLine().getMethod();
-        try {
-          if (method.equalsIgnoreCase(Constants.METHOD_GET)) {
-            Response response = new Response(remote.getOutputStream());
-            onGet(request, response);
-          } else if (method.equalsIgnoreCase(Constants.METHOD_POST)) {
-            Response response = new Response(remote.getOutputStream());
-            onPost(request, response);
-          }
-        } catch (Exception e) {
-          System.err.println("Error handling request for " + request.getRequestLine());
-          e.printStackTrace();
-        }
-
-        remote.close();
+        });
+        requestThread.setName("request_thread");
+        requestThread.setDaemon(true);
+        requestThread.start();
       } catch (Exception e) {
         e.printStackTrace();
       }

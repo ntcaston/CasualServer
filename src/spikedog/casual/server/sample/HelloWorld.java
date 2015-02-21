@@ -22,14 +22,22 @@ public class HelloWorld extends CasualServer{
   @Override
   protected void onGet(Request request, Response response) throws IOException {
     System.out.println(request);
-    StatusLine statusLine = new StatusLine("HTTP/1.1", 200, "OK");
-    response.setStatusLine(statusLine);
+    try {
+      byte[] contentBytes = BASIC_CONTENT.getBytes(StandardCharsets.UTF_8);
 
-    byte[] contentBytes = BASIC_CONTENT.getBytes(StandardCharsets.UTF_8);
-    response.addHeader("Content-Length", "" + contentBytes.length);
-    response.addHeader("Content-Type", "text/html; charset=utf-8");
-    InputStream contentStream = new ByteArrayInputStream(contentBytes);
-    response.setContent(contentStream);
+      InputStream contentStream = new ByteArrayInputStream(contentBytes);
+      response.setContent(contentStream);
+
+      response.addHeader("Content-Length", "" + contentBytes.length);
+      response.addHeader("Content-Type", "text/html; charset=utf-8");
+
+      StatusLine statusLine = new StatusLine("HTTP/1.1", 200, "OK");
+      response.setStatusLine(statusLine);
+    } catch (Exception e) {
+      StatusLine statusLine = new StatusLine("HTTP/1.1", 500, "Fail");
+      response.setStatusLine(statusLine);
+      response.setContent(null);
+    }
     response.flush();
     System.out.println("\n");
   }

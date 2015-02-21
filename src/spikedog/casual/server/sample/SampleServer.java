@@ -19,8 +19,8 @@ public class SampleServer extends CasualServer{
     super(port);
   }
 
-  @Override
-  protected void onGet(Request request, Response response) throws IOException {
+  //@Override
+  protected void onGet2(Request request, Response response) throws IOException {
     System.out.println(request);
     StatusLine statusLine = new StatusLine("HTTP/1.1", 200, "OK");
     response.setStatusLine(statusLine);

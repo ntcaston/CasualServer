@@ -1,10 +1,15 @@
 package spikedog.casual.server;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -119,9 +124,57 @@ public class CasualServer {
   }
   
   // TODO add other methods.
-  protected void onGet(Request request, Response response) throws IOException { 
+  protected void onGet(Request request, Response response) throws IOException {
+    String resource = request.getRequestLine().getUri();
+    if (resource.equals("/")) {
+      resource = "index.html";
+    }
+    serveFile(resource, response);
   }
   
   protected void onPost(Request request, Response response) throws IOException {
+  }
+  
+  protected final void serveFile(String path, Response response) throws IOException {
+    // TODO fix terrible security.
+    if (path.charAt(0) == '/') {
+      path = path.substring(1);
+    }
+    File f = new File(path);
+    if (!f.exists()) {
+      response.setStatusLine(new StatusLine("HTTP/1.1", 404, "No such resource"));
+      response.flush();
+    }
+    
+    InputStream fileInputStream = null;
+    try {
+      fileInputStream = new FileInputStream(f);
+      // TODO be more efficient than this.
+      List<ByteBuffer> contentParts = new ArrayList<ByteBuffer>();
+      byte[] buffer = new byte[4096];
+      int n = 0;
+      int totalSize = 0;
+      while ((n = fileInputStream.read(buffer)) != -1) {
+        contentParts.add(ByteBuffer.wrap(Arrays.copyOf(buffer, n)));
+        totalSize += n;
+      }
+      ByteBuffer content = ByteBuffer.allocate(totalSize);
+      for (ByteBuffer contentPart : contentParts) {
+        content.put(contentPart);
+      }
+      // TODO set up a map from file extensions to content-type
+      response.addHeader("Content-Type", "text/html; charset=utf-8");
+      response.addHeader("Content-Length", "" + totalSize);
+      response.setContent(new ByteArrayInputStream(content.array()));
+      response.setStatusLine(new StatusLine("HTTP/1.1", 200, "OK"));
+    } catch (Exception e) {
+      e.printStackTrace();
+      response.setStatusLine(new StatusLine("HTTP/1.1", 500, e.getMessage()));
+    } finally {
+      if (fileInputStream != null) {
+        fileInputStream.close();
+      }
+    }
+    response.flush();
   }
 }

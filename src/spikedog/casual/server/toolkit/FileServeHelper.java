@@ -1,15 +1,9 @@
 package spikedog.casual.server.toolkit;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import spikedog.casual.server.Response;
@@ -51,37 +45,24 @@ public final class FileServeHelper {
       response.flush();
     }
 
-    InputStream fileInputStream = null;
+    FileInputStream fileInputStream = null;
     try {
       fileInputStream = new FileInputStream(file);
-      // TODO be more efficient than this.
-      List<ByteBuffer> contentParts = new ArrayList<ByteBuffer>();
-      byte[] buffer = new byte[4096];
-      int n = 0;
-      int totalSize = 0;
-      while ((n = fileInputStream.read(buffer)) != -1) {
-        contentParts.add(ByteBuffer.wrap(Arrays.copyOf(buffer, n)));
-        totalSize += n;
-      }
-      ByteBuffer content = ByteBuffer.allocate(totalSize);
-      for (ByteBuffer contentPart : contentParts) {
-        content.put(contentPart);
-      }
+      long contentLength = fileInputStream.getChannel().size();
 
       if (contentType != null) {
         response.addHeader("Content-Type", contentType);
       }
-      response.addHeader("Content-Length", "" + totalSize);
-      response.setContent(new ByteArrayInputStream(content.array()));
+      response.addHeader("Content-Length", "" + contentLength);
+      response.setContent(fileInputStream);
       response.setStatusLine(new StatusLine("HTTP/1.1", 200, "OK"));
     } catch (Exception e) {
       e.printStackTrace();
       response.setStatusLine(new StatusLine("HTTP/1.1", 500, e.getMessage()));
-    } finally {
-      if (fileInputStream != null) {
-        fileInputStream.close();
-      }
     }
     response.flush();
+    if (fileInputStream != null) {
+      fileInputStream.close();
+    }
   }
 }

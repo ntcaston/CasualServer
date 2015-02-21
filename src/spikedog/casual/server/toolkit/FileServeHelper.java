@@ -14,7 +14,6 @@ public final class FileServeHelper {
 
   private static final Map<String, String> MIME_TYPE_MAP = new HashMap<String, String>();
   static {
-    MIME_TYPE_MAP.put("css", "text/css; charset=UTF-8");
     MIME_TYPE_MAP.put("gif", "image/gif");
     MIME_TYPE_MAP.put("html", "text/html; charset=utf-8");
     MIME_TYPE_MAP.put("jpeg", "image/jpeg");
@@ -25,7 +24,7 @@ public final class FileServeHelper {
   }
 
   public static void serveFile(File file, Response response) throws IOException {
-    String contentType = "text/plain; charset=utf-8";
+    String contentType = null;
     String path = file.getPath();
     int extensionSplit = path.lastIndexOf('.');
     if (extensionSplit > 0 && extensionSplit < path.length() - 1) {

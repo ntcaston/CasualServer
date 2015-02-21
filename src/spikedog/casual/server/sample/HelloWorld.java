@@ -15,6 +15,11 @@ import spikedog.casual.server.StatusLine;
  */
 public class HelloWorld extends CasualServer{
   private static final String BASIC_CONTENT = "<html><head></head><body><h1>yo!</hi></body></html>";
+
+  public static void main(String[] args) {
+    new HelloWorld(8080).run();
+  }
+
   public HelloWorld(int port) {
     super(port);
   }

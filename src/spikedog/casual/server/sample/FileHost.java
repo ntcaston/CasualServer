@@ -11,7 +11,11 @@ import spikedog.casual.server.toolkit.FileServeHelper;
 public class FileHost extends CasualServer {
   private final String fileRootDir;
 
-  protected FileHost(String fileRootDir, int port) {
+  public static void main(String[] args) {
+    new FileHost("html", 8080).run();
+  }
+
+  public FileHost(String fileRootDir, int port) {
     super(port);
     this.fileRootDir = fileRootDir;
   }

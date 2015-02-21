@@ -17,14 +17,13 @@ public class CasualServer {
   private static final byte LINE_FEED_BYTE = (byte) '\n';
 
   private final int port;
+  private ServerSocket socket;
 
   protected CasualServer(int port) {
     this.port = port;
   }
 
-  @SuppressWarnings("resource")
   public final void run() {
-    ServerSocket socket;
     try {
       socket = new ServerSocket(port);
     } catch (Exception e) {
@@ -94,6 +93,10 @@ public class CasualServer {
         e.printStackTrace();
       }
     }
+  }
+
+  public void close() throws IOException {
+    socket.close();
   }
 
   private static String readLine(InputStream stream) throws IOException {

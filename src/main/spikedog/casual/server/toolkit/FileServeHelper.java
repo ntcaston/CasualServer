@@ -42,7 +42,7 @@ public final class FileServeHelper {
   public static void serveFile(File file, Response response, String contentType)
       throws IOException {
     // TODO fix terrible security.
-    if (!file.exists()) {
+    if (!file.exists() || file.isDirectory()) {
       response.setStatusLine(new StatusLine(Constants.VERISON_HTTP_1_1, 404, "No such resource"));
       response.flush();
     }

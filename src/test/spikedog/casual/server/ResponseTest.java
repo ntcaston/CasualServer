@@ -79,6 +79,9 @@ public class ResponseTest {
     response.setStatusLine(new StatusLine("HTTP/1.1", 200, "OK"));
     response.addHeader("Content-Type", "text/plain");
     String content = "This is the message body content";
+
+    // Add unnecessary flush to ensure state is handled correctly.
+    response.flush();
     InputStream contentStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
     response.setBody(contentStream);
     response.flush();

@@ -16,7 +16,7 @@ import java.util.Set;
  * 
  * <em>Not</em> thread-safe.
  */
-// TODO need a state machine to deal with state soup.
+// TODO need a state machine to deal with state soup... maybe?
 public final class Response {
   private static final byte[] NEW_LINE_BYTES = new String("\n").getBytes();
   // TODO make configurable

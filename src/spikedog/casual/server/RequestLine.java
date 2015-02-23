@@ -50,13 +50,10 @@ public final class RequestLine {
       return false;
     }
 
-    if (other == this) {
-      return true;
-    }
-
     if (!(other instanceof RequestLine)) {
       return false;
     }
+
     RequestLine otherLine = (RequestLine) other;
     return method.equals(otherLine.method)
         && uri.equals(otherLine.uri)

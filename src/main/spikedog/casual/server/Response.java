@@ -17,12 +17,15 @@ import java.util.Set;
  * <em>Not</em> thread-safe.
  */
 public final class Response {
+  // TODO need a state machine to deal with state soup.
   private static final byte[] NEW_LINE_BYTES = new String("\n").getBytes();
   // TODO make configurable
   private static final int BUFFER_SIZE = 4096;
 
   private final OutputStream out;
 
+  // TODO Storing like this results in a lot of unnecessary list instantiations. Optimise this once
+  // this class is well tested.
   private final LinkedHashMap<String, List<String>> headers =
       new LinkedHashMap<String, List<String>>();
   private final Set<String> writtenHeaders = new HashSet<String>();
@@ -44,9 +47,11 @@ public final class Response {
   }
 
   public void addHeader(String name, String value) {
-    if (writtenHeaders.contains(name)) {
+    if (writtenHeaders.contains(name.toLowerCase())) {
       throw new IllegalStateException(
           "Attempted to change a header which has already been written to output.");
+    } else if (begunWritingBody) {
+      throw new IllegalStateException("Attempted to set header after message body flushed.");
     }
     if (!headers.containsKey(name)) {
       headers.put(name, new ArrayList<String>(1));
@@ -56,9 +61,11 @@ public final class Response {
   }
 
   public void setHeader(String name, String value) {
-    if (writtenHeaders.contains(name)) {
+    if (writtenHeaders.contains(name.toLowerCase())) {
       throw new IllegalStateException(
           "Attempted to set a header which has already been written to output.");
+    } else if (begunWritingBody) {
+      throw new IllegalStateException("Attempted to set header after message body flushed.");
     }
     List<String> values = new ArrayList<String>(1);
     values.add(value);
@@ -82,7 +89,12 @@ public final class Response {
       statusLineWritten = true;
     }
 
+    // TODO make sure this is legit. It's actually possible to write headers after the body in some
+    // cases (although maybe these can just be included in the body.
     if (headers.size() > writtenHeaderCount && !begunWritingBody) {
+      if (!statusLineWritten) {
+        throw new IllegalStateException("Attempted to flush headers before status line set.");
+      }
       Iterator<Map.Entry<String, List<String>>> iterator = headers.entrySet().iterator();
       for (int headerIndex = 0; headerIndex < headers.size(); headerIndex++) {
         Map.Entry<String, List<String>> entry = iterator.next();
@@ -101,11 +113,15 @@ public final class Response {
         }
         out.write((name + ": " + valueStringBuilder.toString()).getBytes());
         out.write(NEW_LINE_BYTES);
+        writtenHeaders.add(name.toLowerCase());
       }
       writtenHeaderCount = headers.size();
     }
 
     if (body != null && !begunWritingBody) {
+      if (!statusLineWritten) {
+        throw new IllegalStateException("Attempted to flush message body before status line set.");
+      }
       begunWritingBody = true;
       out.write(NEW_LINE_BYTES);
       int n = 0;

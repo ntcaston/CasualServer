@@ -14,6 +14,7 @@ import spikedog.casual.server.util.Constants;
  * 
  * Currently only compatible with HTTP/1.1.
  */
+// TODO needs to be much more configurable, timeouts etc.
 public class CasualServer {
   private static final StatusLine UNSUPPORTED_METHOD_STATUS =
       new StatusLine(Constants.VERISON_HTTP_1_1, 405, "Method not allowed.");

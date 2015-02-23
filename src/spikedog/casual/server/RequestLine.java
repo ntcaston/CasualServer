@@ -58,9 +58,9 @@ public final class RequestLine {
       return false;
     }
     RequestLine otherLine = (RequestLine) other;
-    return this.method == otherLine.method
-        && this.uri == otherLine.uri
-        && this.httpVersion == otherLine.httpVersion;
+    return method.equals(otherLine.method)
+        && uri.equals(otherLine.uri)
+        && httpVersion.equals(otherLine.httpVersion);
   }
 
   @Override

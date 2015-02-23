@@ -1,5 +1,7 @@
 package spikedog.casual.server;
 
+import java.util.Objects;
+
 /**
  * Immutable representation of HTTP status line. {@link #toString} returns a string suitable for use
  * in an HTTP response.
@@ -20,5 +22,26 @@ public final class StatusLine {
   @Override
   public String toString() {
     return httpVersion + " " + statusCode + " " + reasonPhrase;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+
+    if (!(obj instanceof StatusLine)) {
+      return false;
+    }
+
+    StatusLine statusLine = (StatusLine) obj;
+    return httpVersion.equals(statusLine.httpVersion)
+        && statusCode == statusLine.statusCode
+        && reasonPhrase.equals(statusLine.reasonPhrase);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(httpVersion, statusCode, reasonPhrase);
   }
 }

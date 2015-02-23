@@ -15,6 +15,8 @@ import spikedog.casual.server.util.Constants;
  * Currently only compatible with HTTP/1.1.
  */
 public class CasualServer {
+  private static final StatusLine UNSUPPORTED_METHOD_STATUS =
+      new StatusLine(Constants.VERISON_HTTP_1_1, 405, "Method not allowed.");
   private static final byte CARRIAGE_RETURN_BYTE = (byte) '\r';
   private static final byte LINE_FEED_BYTE = (byte) '\n';
 
@@ -73,14 +75,17 @@ public class CasualServer {
               Request request = requestBuilder.build();
 
               // Assign request to appropriate method.
-              String method = request.getRequestLine().getMethod();
               try {
+                Response response = new Response(requestSocket.getOutputStream());
+                String method = request.getRequestLine().getMethod();
                 if (method.equalsIgnoreCase(Constants.METHOD_GET)) {
-                  Response response = new Response(requestSocket.getOutputStream());
                   onGet(request, response);
                 } else if (method.equalsIgnoreCase(Constants.METHOD_POST)) {
-                  Response response = new Response(requestSocket.getOutputStream());
                   onPost(request, response);
+                } else if (method.equalsIgnoreCase(Constants.METHOD_PUT)) {
+                  onPut(request, response);
+                } else {
+                  onUnsupportedMethod(request, response);
                 }
               } catch (Exception e) {
                 System.err.println("Error handling request for " + request.getRequestLine());
@@ -124,10 +129,34 @@ public class CasualServer {
     return headerLineBuilder.toString();
   }
 
-  // TODO add other methods.
+  /**
+   * Should be overriden by subclasses to perform expected operation on an HTTP GET request. By
+   * default this method will call {@link #onUnsupportedMethod(Request, Response)}.
+   */
   protected void onGet(Request request, Response response) throws IOException {
+    onUnsupportedMethod(request, response);
   }
 
+  /**
+   * Equivalent to {@link #onGet(Request, Response)} for HTTP POST.
+   */
   protected void onPost(Request request, Response response) throws IOException {
+    onUnsupportedMethod(request, response);
+  }
+
+  /**
+   * Equivalent to {@link #onGet(Request, Response)} for HTTP PUT.
+   */
+  protected void onPut(Request request, Response response) throws IOException {
+    onUnsupportedMethod(request, response);
+  }
+
+  /**
+   * Writes a response with a 405 status code. May be overriden by subclasses to dictate the
+   * behaviour.
+   */
+  protected void onUnsupportedMethod(Request request, Response response) throws IOException {
+    response.setStatusLine(UNSUPPORTED_METHOD_STATUS);
+    response.flush();
   }
 }

@@ -37,6 +37,9 @@ public final class Request {
   private final Map<String, List<String>> headerMap;
   private final InputStream body;
 
+  /**
+   * @param headers Map from header name to values. Name must be lower-case.
+   */
   private Request(RequestLine requestLine, Map<String, List<String>> headers, InputStream body) {
     this.requestLine = requestLine;
     this.headerMap = headers;
@@ -55,12 +58,19 @@ public final class Request {
     return vals.get(0);
   }
 
+  /**
+   * @return List of values for this header. Should not be modified.
+   */
+  // TODO Immutable lists?
   public List<String> getHeaderValues(String key) {
     return headerMap.get(key.toLowerCase());
   }
 
-  /** @return The headers of the request. Should not be modified. */
-  public Map<String, List<String>> getHeaders() {
+  /**
+   * @return The headers of the request. Should not be modified. Header names are stored in
+   *     lower-case for case-insensitive lookup.
+   */
+  public Map<String, List<String>> getAllHeaders() {
     return headerMap;
   }
 

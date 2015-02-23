@@ -16,6 +16,7 @@ import spikedog.casual.server.util.Constants;
 public final class FileServeHelper {
   private static final Map<String, String> MIME_TYPE_MAP = new HashMap<String, String>();
   static {
+    MIME_TYPE_MAP.put("css", "text/css");
     MIME_TYPE_MAP.put("gif", "image/gif");
     MIME_TYPE_MAP.put("html", "text/html; charset=utf-8");
     MIME_TYPE_MAP.put("jpeg", "image/jpeg");
@@ -54,6 +55,7 @@ public final class FileServeHelper {
       if (contentType != null) {
         response.addHeader(Constants.HEADER_CONTENT_TYPE, contentType);
       }
+
       response.addHeader(Constants.HEADER_CONTENT_LENGTH, "" + contentLength);
       response.setBody(fileInputStream);
       response.setStatusLine(new StatusLine(Constants.VERISON_HTTP_1_1, 200, "OK"));

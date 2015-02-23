@@ -12,6 +12,11 @@ public final class RequestLine {
   private final String uri;
   private final String httpVersion;
 
+  /**
+   * @param requestLineString String representation of a HTTP request line.
+   * @return A request line instance based on the provided string.
+   * @throws IllegalArgumentException If the string does not have exactly 3 components.
+   */
   public static RequestLine fromString(String requestLineString) {
     String[] parts = requestLineString.split(" ");
     if (parts.length != 3) {

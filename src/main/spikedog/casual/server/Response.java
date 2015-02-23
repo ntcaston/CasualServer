@@ -16,8 +16,8 @@ import java.util.Set;
  * 
  * <em>Not</em> thread-safe.
  */
+// TODO need a state machine to deal with state soup.
 public final class Response {
-  // TODO need a state machine to deal with state soup.
   private static final byte[] NEW_LINE_BYTES = new String("\n").getBytes();
   // TODO make configurable
   private static final int BUFFER_SIZE = 4096;
@@ -39,6 +39,11 @@ public final class Response {
     this.out = out;
   }
 
+  /**
+   * Sets the status line to be written to the underlying output stream.
+   * 
+   * @throws IllegalStateException If a status line has already been flushed for this response.
+   */
   public void setStatusLine(StatusLine statusLine) {
     if (statusLineWritten) {
       throw new IllegalStateException("Setting status line after status line written to output.");
@@ -46,6 +51,13 @@ public final class Response {
     this.statusLine = statusLine;
   }
 
+  /**
+   * Adds a header value for a name by appending it to existing values or creating a new value-list
+   * if none exists.
+   * 
+   * @throws IllegalStateException If a header with the provided name has already been flushed for
+   *     this response or if the message body is already being written.
+   */
   public void addHeader(String name, String value) {
     if (writtenHeaders.contains(name.toLowerCase())) {
       throw new IllegalStateException(
@@ -60,6 +72,12 @@ public final class Response {
     valueList.add(value);
   }
 
+  /**
+   * Sets a header name to a particular value. Overrides any existing value.
+   * 
+   * @throws IllegalStateException If a header with the provided name has already been flushed for
+   *     this response or if the message body is already being written.
+   */
   public void setHeader(String name, String value) {
     if (writtenHeaders.contains(name.toLowerCase())) {
       throw new IllegalStateException(
@@ -72,6 +90,11 @@ public final class Response {
     headers.put(name, values);
   }
 
+  /**
+   * Sets the message body of the response.
+   * 
+   * @throws IllegalStateException If a message body is already being flushed.
+   */
   public void setBody(InputStream body) {
     if (begunWritingBody) {
       throw new IllegalStateException(
@@ -80,8 +103,15 @@ public final class Response {
     this.body = body;
   }
 
-  // TODO this is a bit weird... net to check it actually all makes sense and do lots of validation
-  // and error throwing and such.
+  /**
+   * Writes any available data to the underlying output stream. After calls to {@link #flush} users
+   * must be careful to ensure that they do not enter an illegal state by editing values which have
+   * already been flushed, i.e. adjusting the Content-Type header if the Content-Type header was set
+   * before flushing.
+   * 
+   * @throws IllegalStateException If attempting to write data out of order, i.e. writing headers or
+   *     body before status line is written.
+   */
   public void flush() throws IOException {
     if (!statusLineWritten && statusLine != null) {
       out.write(statusLine.toString().getBytes());
@@ -89,8 +119,6 @@ public final class Response {
       statusLineWritten = true;
     }
 
-    // TODO make sure this is legit. It's actually possible to write headers after the body in some
-    // cases (although maybe these can just be included in the body.
     if (headers.size() > writtenHeaderCount && !begunWritingBody) {
       if (!statusLineWritten) {
         throw new IllegalStateException("Attempted to flush headers before status line set.");

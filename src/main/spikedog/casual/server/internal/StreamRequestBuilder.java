@@ -44,6 +44,7 @@ public class StreamRequestBuilder {
       }
       requestBuilder.setHeader(name, values);
     }
+
     requestBuilder.setBody(in);
     return requestBuilder.build();
   }

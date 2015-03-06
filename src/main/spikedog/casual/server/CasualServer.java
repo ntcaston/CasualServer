@@ -35,46 +35,39 @@ public abstract class CasualServer {
    * Blocking call to run the server on endless loop. May be terminated with a call to
    * {@link #stop()}.
    */
-  public final void run() {
-    try {
-      socket = new ServerSocket(port);
-    } catch (Exception e) {
-      e.printStackTrace();
-      return;
-    }
+  public final void run() throws IOException {
+    socket = new ServerSocket(port);
 
     while (true) {
+      Socket requestSocket = null;
       try {
-        final Socket requestSocket = socket.accept();
+        requestSocket = socket.accept();
         socketConfigResolver.resolveSocketConfig(requestSocket);
+        final Socket finalRequestSocket = requestSocket;
         Thread requestThread = new Thread(new Runnable() {
           @Override
           public void run() {
+            Request request = null;
             try {
-              Request request =
-                  StreamRequestBuilder.buildRequestFromStream(requestSocket.getInputStream());
+              request =
+                  StreamRequestBuilder.buildRequestFromStream(finalRequestSocket.getInputStream());
 
               // Assign request to appropriate method.
-              try {
-                Response response = new Response(requestSocket.getOutputStream());
-                String method = request.getRequestLine().getMethod();
-                if (method.equalsIgnoreCase(Constants.METHOD_GET)) {
-                  onGet(request, response);
-                } else if (method.equalsIgnoreCase(Constants.METHOD_POST)) {
-                  onPost(request, response);
-                } else if (method.equalsIgnoreCase(Constants.METHOD_PUT)) {
-                  onPut(request, response);
-                } else {
-                  onUnsupportedMethod(request, response);
-                }
-              } catch (Exception e) {
-                System.err.println("Error handling request for " + request.getRequestLine());
-                e.printStackTrace();
+              Response response = new Response(finalRequestSocket.getOutputStream());
+              String method = request.getRequestLine().getMethod();
+              if (method.equalsIgnoreCase(Constants.METHOD_GET)) {
+                onGet(request, response);
+              } else if (method.equalsIgnoreCase(Constants.METHOD_POST)) {
+                onPost(request, response);
+              } else if (method.equalsIgnoreCase(Constants.METHOD_PUT)) {
+                onPut(request, response);
+              } else {
+                onUnsupportedMethod(request, response);
               }
-
-              requestSocket.close();
             } catch (Exception e) {
+              System.err.println("Error handling request for " + request);
               e.printStackTrace();
+              throw new RuntimeException(e);
             }
           }
         });
@@ -83,6 +76,10 @@ public abstract class CasualServer {
         requestThread.start();
       } catch (Exception e) {
         e.printStackTrace();
+      } finally {
+        if (requestSocket != null) {
+          requestSocket.close();
+        }
       }
     }
   }

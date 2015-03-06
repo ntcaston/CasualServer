@@ -21,7 +21,7 @@ public final class StatusLine {
 
   @Override
   public String toString() {
-    return httpVersion + " " + statusCode + " " + reasonPhrase;
+    return String.format("%s %s %s", httpVersion, statusCode, reasonPhrase);
   }
 
   @Override

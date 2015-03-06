@@ -27,6 +27,7 @@ public class CasualServer {
   private final SocketConfig socketConfig;
   private ServerSocket socket;
 
+  // Resolution of socket config values.
   private final AtomicBoolean configResolved = new AtomicBoolean();
   private boolean keepAlive;
   private int socketTimeout;

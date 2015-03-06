@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * Currently only compatible with HTTP/1.1.
  */
-public class CasualServer {
+public abstract class CasualServer {
   private static final StatusLine UNSUPPORTED_METHOD_STATUS =
       new StatusLine(Constants.VERISON_HTTP_1_1, 405, "Method not allowed.");
 

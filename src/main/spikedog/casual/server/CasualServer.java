@@ -4,17 +4,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import spikedog.casual.server.util.Constants;
 
+
 /**
  * Server class intended for handling HTTP requests. Intended for subclassing.
- * 
+ *
  * Currently only compatible with HTTP/1.1.
  */
-// TODO needs to be much more configurable, timeouts etc.
 public class CasualServer {
   private static final StatusLine UNSUPPORTED_METHOD_STATUS =
       new StatusLine(Constants.VERISON_HTTP_1_1, 405, "Method not allowed.");
@@ -22,17 +24,29 @@ public class CasualServer {
   private static final byte LINE_FEED_BYTE = (byte) '\n';
 
   private final int port;
+  private final SocketConfig socketConfig;
   private ServerSocket socket;
 
+  private final AtomicBoolean configResolved = new AtomicBoolean();
+  private boolean keepAlive;
+  private int socketTimeout;
+  private int receiveBufferSize;
+  private int sendBufferSize;
+  private boolean tcpNoDelay;
+
   protected CasualServer(int port) {
+    this(port, null);
+  }
+
+  protected CasualServer(int port, SocketConfig config) {
     this.port = port;
+    this.socketConfig = config;
   }
 
   /**
    * Blocking call to run the server on endless loop. May be terminated with a call to
-   * {@link #close()}.
+   * {@link #stop()}.
    */
-  // TODO add safe close which ends after all pending requests have finished?
   public final void run() {
     try {
       socket = new ServerSocket(port);
@@ -43,15 +57,13 @@ public class CasualServer {
 
     while (true) {
       try {
-        Socket remote = socket.accept();
-        final Socket requestSocket = remote;
+        final Socket requestSocket = socket.accept();
+        resolveSocketConfig(requestSocket);
         Thread requestThread = new Thread(new Runnable() {
           @Override
           public void run() {
             try {
               // TODO lots of error handling.
-              // TODO make configurable. Socket factory.
-              requestSocket.setSoTimeout(10000);
               Request.Builder requestBuilder = new Request.Builder();
               InputStream in = requestSocket.getInputStream();
               RequestLine requestLine = RequestLine.fromString(readLine(in));
@@ -109,26 +121,8 @@ public class CasualServer {
     }
   }
 
-  public void close() throws IOException {
+  public void stop() throws IOException {
     socket.close();
-  }
-
-  private static String readLine(InputStream stream) throws IOException {
-    StringBuilder headerLineBuilder = new StringBuilder();
-    int b = -1;
-
-    byte lastByte = -1;
-    // Wow! Such efficient!
-    while ((b = stream.read()) != -1) {
-      if (lastByte == CARRIAGE_RETURN_BYTE && b == LINE_FEED_BYTE) {
-        break;
-      }
-      if (lastByte > -1) {
-        headerLineBuilder.append((char) lastByte);
-      }
-      lastByte = (byte) b;
-    }
-    return headerLineBuilder.toString();
   }
 
   /**
@@ -160,5 +154,56 @@ public class CasualServer {
   protected void onUnsupportedMethod(Request request, Response response) throws IOException {
     response.setStatusLine(UNSUPPORTED_METHOD_STATUS);
     response.flush();
+  }
+
+  private void resolveSocketConfig(Socket socket) throws SocketException {
+    if (!configResolved.get()) {
+      synchronized (configResolved) {
+        if (!configResolved.get()) {
+          Boolean configKeepAlive = socketConfig.getKeepAlive();
+          keepAlive = configKeepAlive == null ? socket.getKeepAlive() : configKeepAlive;
+
+          Integer configSocketTimeout = socketConfig.getSocketTimeout();
+          socketTimeout = configSocketTimeout == null ? socket.getSoTimeout() : configSocketTimeout;
+
+          Integer configReceiveBufferSize = socketConfig.getReceiveBufferSize();
+          receiveBufferSize = configReceiveBufferSize == null
+              ? socket.getReceiveBufferSize() : configReceiveBufferSize;
+
+          Integer configSendBufferSize = socketConfig.getSendBufferSize();
+          sendBufferSize = configSendBufferSize == null
+              ? socket.getSendBufferSize() : configSendBufferSize;
+
+          Boolean configTcpNoDelay = socketConfig.getTcpNoDelay();
+          tcpNoDelay = configTcpNoDelay == null ? socket.getTcpNoDelay() : configTcpNoDelay;
+
+          configResolved.set(true);
+        }
+      }
+    }
+
+    socket.setKeepAlive(keepAlive);
+    socket.setSoTimeout(socketTimeout);
+    socket.setReceiveBufferSize(receiveBufferSize);
+    socket.setSendBufferSize(sendBufferSize);
+    socket.setTcpNoDelay(tcpNoDelay);
+  }
+
+  private static String readLine(InputStream stream) throws IOException {
+    StringBuilder headerLineBuilder = new StringBuilder();
+    int b = -1;
+
+    byte lastByte = -1;
+    // Wow! Such efficient!
+    while ((b = stream.read()) != -1) {
+      if (lastByte == CARRIAGE_RETURN_BYTE && b == LINE_FEED_BYTE) {
+        break;
+      }
+      if (lastByte > -1) {
+        headerLineBuilder.append((char) lastByte);
+      }
+      lastByte = (byte) b;
+    }
+    return headerLineBuilder.toString();
   }
 }

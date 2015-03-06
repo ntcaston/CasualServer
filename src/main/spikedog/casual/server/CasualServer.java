@@ -156,6 +156,11 @@ public class CasualServer {
     response.flush();
   }
 
+  /**
+   * Configures a socket based on the settings in this server's {@link SocketConfig} object. Will
+   * use the provided socket to determine defaults for non-configured values if this is the first
+   * time the config has been resolved.
+   */
   private void resolveSocketConfig(Socket socket) throws SocketException {
     if (!configResolved.get()) {
       synchronized (configResolved) {

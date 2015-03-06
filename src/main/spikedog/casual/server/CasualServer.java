@@ -1,14 +1,12 @@
 package spikedog.casual.server;
 
+import spikedog.casual.server.internal.StreamRequestBuilder;
 import spikedog.casual.server.util.Constants;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -20,8 +18,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class CasualServer {
   private static final StatusLine UNSUPPORTED_METHOD_STATUS =
       new StatusLine(Constants.VERISON_HTTP_1_1, 405, "Method not allowed.");
-  private static final byte CARRIAGE_RETURN_BYTE = (byte) '\r';
-  private static final byte LINE_FEED_BYTE = (byte) '\n';
 
   private final int port;
   private final SocketConfig socketConfig;
@@ -64,30 +60,8 @@ public class CasualServer {
           @Override
           public void run() {
             try {
-              // TODO lots of error handling.
-              Request.Builder requestBuilder = new Request.Builder();
-              InputStream in = requestSocket.getInputStream();
-              RequestLine requestLine = RequestLine.fromString(readLine(in));
-              requestBuilder.setRequestLine(requestLine);
-
-              while (true) {
-                String headerLine = readLine(in);
-                if (headerLine.equals("")) {
-                  break;
-                }
-
-                int split = headerLine.indexOf(':');
-                String name = headerLine.substring(0, split).trim();
-                String valueSection = headerLine.substring(split + 1);
-                List<String> values = new ArrayList<String>();
-                String[] valueParts = valueSection.split(",");
-                for (String value : valueParts) {
-                  values.add(value.trim());
-                }
-                requestBuilder.setHeader(name, values);
-              }
-              requestBuilder.setBody(requestSocket.getInputStream());
-              Request request = requestBuilder.build();
+              Request request =
+                  StreamRequestBuilder.buildRequestFromStream(requestSocket.getInputStream());
 
               // Assign request to appropriate method.
               try {
@@ -201,23 +175,5 @@ public class CasualServer {
     socket.setReceiveBufferSize(receiveBufferSize);
     socket.setSendBufferSize(sendBufferSize);
     socket.setTcpNoDelay(tcpNoDelay);
-  }
-
-  private static String readLine(InputStream stream) throws IOException {
-    StringBuilder headerLineBuilder = new StringBuilder();
-    int b = -1;
-
-    byte lastByte = -1;
-    // Wow! Such efficient!
-    while ((b = stream.read()) != -1) {
-      if (lastByte == CARRIAGE_RETURN_BYTE && b == LINE_FEED_BYTE) {
-        break;
-      }
-      if (lastByte > -1) {
-        headerLineBuilder.append((char) lastByte);
-      }
-      lastByte = (byte) b;
-    }
-    return headerLineBuilder.toString();
   }
 }

@@ -1,15 +1,15 @@
 package spikedog.casual.server.sample;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-
 import spikedog.casual.server.CasualServer;
 import spikedog.casual.server.Request;
 import spikedog.casual.server.Response;
 import spikedog.casual.server.StatusLine;
 import spikedog.casual.server.util.Constants;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Super lame {@link CasualServer} demo.

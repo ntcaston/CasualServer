@@ -2,13 +2,13 @@ package spikedog.casual.server;
 
 import static org.junit.Assert.assertEquals;
 
+import spikedog.casual.server.util.Constants;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
-
-import spikedog.casual.server.util.Constants;
 
 public class RequestTest {
 

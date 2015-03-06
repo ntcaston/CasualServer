@@ -1,5 +1,7 @@
 package spikedog.casual.server;
 
+import spikedog.casual.server.util.Constants;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
@@ -8,8 +10,6 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import spikedog.casual.server.util.Constants;
 
 
 /**

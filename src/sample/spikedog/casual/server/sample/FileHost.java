@@ -1,12 +1,12 @@
 package spikedog.casual.server.sample;
 
-import java.io.File;
-import java.io.IOException;
-
 import spikedog.casual.server.CasualServer;
 import spikedog.casual.server.Request;
 import spikedog.casual.server.Response;
 import spikedog.casual.server.toolkit.FileServeHelper;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Sample server which serves files from a provided root directory.

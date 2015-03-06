@@ -1,14 +1,14 @@
 package spikedog.casual.server.toolkit;
 
+import spikedog.casual.server.Response;
+import spikedog.casual.server.StatusLine;
+import spikedog.casual.server.util.Constants;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import spikedog.casual.server.Response;
-import spikedog.casual.server.StatusLine;
-import spikedog.casual.server.util.Constants;
 
 /**
  * Assists in serving files as responses.

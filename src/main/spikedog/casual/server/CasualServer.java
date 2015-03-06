@@ -166,23 +166,31 @@ public class CasualServer {
     if (!configResolved.get()) {
       synchronized (configResolved) {
         if (!configResolved.get()) {
-          Boolean configKeepAlive = socketConfig.getKeepAlive();
-          keepAlive = configKeepAlive == null ? socket.getKeepAlive() : configKeepAlive;
+          keepAlive = socket.getKeepAlive();
+          socketTimeout = socket.getSoTimeout();
+          receiveBufferSize = socket.getReceiveBufferSize();
+          sendBufferSize = socket.getSendBufferSize();
+          tcpNoDelay = socket.getTcpNoDelay();
 
-          Integer configSocketTimeout = socketConfig.getSocketTimeout();
-          socketTimeout = configSocketTimeout == null ? socket.getSoTimeout() : configSocketTimeout;
+          if (socketConfig != null) {
+            Boolean configKeepAlive = socketConfig.getKeepAlive();
+            keepAlive = configKeepAlive == null ? socket.getKeepAlive() : configKeepAlive;
 
-          Integer configReceiveBufferSize = socketConfig.getReceiveBufferSize();
-          receiveBufferSize = configReceiveBufferSize == null
-              ? socket.getReceiveBufferSize() : configReceiveBufferSize;
+            Integer configSocketTimeout = socketConfig.getSocketTimeout();
+            socketTimeout = configSocketTimeout == null
+                ? socket.getSoTimeout() : configSocketTimeout;
 
-          Integer configSendBufferSize = socketConfig.getSendBufferSize();
-          sendBufferSize = configSendBufferSize == null
-              ? socket.getSendBufferSize() : configSendBufferSize;
+            Integer configReceiveBufferSize = socketConfig.getReceiveBufferSize();
+            receiveBufferSize = configReceiveBufferSize == null
+                ? socket.getReceiveBufferSize() : configReceiveBufferSize;
 
-          Boolean configTcpNoDelay = socketConfig.getTcpNoDelay();
-          tcpNoDelay = configTcpNoDelay == null ? socket.getTcpNoDelay() : configTcpNoDelay;
+            Integer configSendBufferSize = socketConfig.getSendBufferSize();
+            sendBufferSize = configSendBufferSize == null
+                ? socket.getSendBufferSize() : configSendBufferSize;
 
+            Boolean configTcpNoDelay = socketConfig.getTcpNoDelay();
+            tcpNoDelay = configTcpNoDelay == null ? socket.getTcpNoDelay() : configTcpNoDelay;
+          }
           configResolved.set(true);
         }
       }

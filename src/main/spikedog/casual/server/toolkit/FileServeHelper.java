@@ -59,13 +59,14 @@ public final class FileServeHelper {
       response.addHeader(Constants.HEADER_CONTENT_LENGTH, "" + contentLength);
       response.setBody(fileInputStream);
       response.setStatusLine(new StatusLine(Constants.VERISON_HTTP_1_1, 200, "OK"));
+      response.flush();
     } catch (Exception e) {
       e.printStackTrace();
       response.setStatusLine(new StatusLine(Constants.VERISON_HTTP_1_1, 500, e.getMessage()));
-    }
-    response.flush();
-    if (fileInputStream != null) {
-      fileInputStream.close();
+    } finally {
+      if (fileInputStream != null) {
+        fileInputStream.close();
+      }
     }
   }
 }

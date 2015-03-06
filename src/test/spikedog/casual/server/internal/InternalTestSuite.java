@@ -5,6 +5,9 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ SocketConfigResolverTest.class, StreamRequestBuilderTest.class })
+@SuiteClasses({
+  SocketConfigResolverTest.class,
+  StreamRequestBuilderTest.class
+})
 public class InternalTestSuite {
 }

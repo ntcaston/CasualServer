@@ -1,14 +1,12 @@
 package spikedog.casual.server;
 
+import spikedog.casual.server.internal.SocketConfigResolver;
 import spikedog.casual.server.internal.StreamRequestBuilder;
 import spikedog.casual.server.util.Constants;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 
 /**
  * Server class intended for handling HTTP requests. Intended for subclassing.
@@ -20,16 +18,9 @@ public abstract class CasualServer {
       new StatusLine(Constants.VERISON_HTTP_1_1, 405, "Method not allowed.");
 
   private final int port;
-  private final SocketConfig socketConfig;
-  private ServerSocket socket;
+  private final SocketConfigResolver socketConfigResolver;
 
-  // Resolution of socket config values.
-  private final AtomicBoolean configResolved = new AtomicBoolean();
-  private boolean keepAlive;
-  private int socketTimeout;
-  private int receiveBufferSize;
-  private int sendBufferSize;
-  private boolean tcpNoDelay;
+  private ServerSocket socket;
 
   protected CasualServer(int port) {
     this(port, null);
@@ -37,7 +28,7 @@ public abstract class CasualServer {
 
   protected CasualServer(int port, SocketConfig config) {
     this.port = port;
-    this.socketConfig = config;
+    socketConfigResolver = new SocketConfigResolver(config);
   }
 
   /**
@@ -55,7 +46,7 @@ public abstract class CasualServer {
     while (true) {
       try {
         final Socket requestSocket = socket.accept();
-        resolveSocketConfig(requestSocket);
+        socketConfigResolver.resolveSocketConfig(requestSocket);
         Thread requestThread = new Thread(new Runnable() {
           @Override
           public void run() {
@@ -129,51 +120,5 @@ public abstract class CasualServer {
   protected void onUnsupportedMethod(Request request, Response response) throws IOException {
     response.setStatusLine(UNSUPPORTED_METHOD_STATUS);
     response.flush();
-  }
-
-  /**
-   * Configures a socket based on the settings in this server's {@link SocketConfig} object. Will
-   * use the provided socket to determine defaults for non-configured values if this is the first
-   * time the config has been resolved.
-   */
-  private void resolveSocketConfig(Socket socket) throws SocketException {
-    if (!configResolved.get()) {
-      synchronized (configResolved) {
-        if (!configResolved.get()) {
-          keepAlive = socket.getKeepAlive();
-          socketTimeout = socket.getSoTimeout();
-          receiveBufferSize = socket.getReceiveBufferSize();
-          sendBufferSize = socket.getSendBufferSize();
-          tcpNoDelay = socket.getTcpNoDelay();
-
-          if (socketConfig != null) {
-            Boolean configKeepAlive = socketConfig.getKeepAlive();
-            keepAlive = configKeepAlive == null ? socket.getKeepAlive() : configKeepAlive;
-
-            Integer configSocketTimeout = socketConfig.getSocketTimeout();
-            socketTimeout = configSocketTimeout == null
-                ? socket.getSoTimeout() : configSocketTimeout;
-
-            Integer configReceiveBufferSize = socketConfig.getReceiveBufferSize();
-            receiveBufferSize = configReceiveBufferSize == null
-                ? socket.getReceiveBufferSize() : configReceiveBufferSize;
-
-            Integer configSendBufferSize = socketConfig.getSendBufferSize();
-            sendBufferSize = configSendBufferSize == null
-                ? socket.getSendBufferSize() : configSendBufferSize;
-
-            Boolean configTcpNoDelay = socketConfig.getTcpNoDelay();
-            tcpNoDelay = configTcpNoDelay == null ? socket.getTcpNoDelay() : configTcpNoDelay;
-          }
-          configResolved.set(true);
-        }
-      }
-    }
-
-    socket.setKeepAlive(keepAlive);
-    socket.setSoTimeout(socketTimeout);
-    socket.setReceiveBufferSize(receiveBufferSize);
-    socket.setSendBufferSize(sendBufferSize);
-    socket.setTcpNoDelay(tcpNoDelay);
   }
 }

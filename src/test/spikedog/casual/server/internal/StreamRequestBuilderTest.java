@@ -38,6 +38,37 @@ public class StreamRequestBuilderTest {
   }
 
   @Test
+  public void testHeaderSpaces() throws IOException {
+    String requestString =
+        "GET / HTTP/1.1\r\n"
+        + "Host: some host  I guess   \r\n"
+        + "Date:    now is the time \r\n"
+        + "\r\n"
+        + "some content";
+    InputStream stream = new StringyInputStream(requestString);
+    Request request = StreamRequestBuilder.buildRequestFromStream(stream);
+
+    // Check request line.
+    assertEquals("GET", request.getRequestLine().getMethod());
+    assertEquals("/", request.getRequestLine().getUri());
+    assertEquals("HTTP/1.1", request.getRequestLine().getHttpVersion());
+
+    // Check headers.
+    assertEquals(2, request.getAllHeaders().size());
+
+    assertEquals(1, request.getHeaderValues("Host").size());
+    assertEquals("some host  I guess", request.getHeaderValues("Host").get(0));
+    assertEquals("some host  I guess", request.getFirstHeaderValue("Host"));
+
+    assertEquals(1, request.getHeaderValues("Date").size());
+    assertEquals("now is the time", request.getHeaderValues("Date").get(0));
+    assertEquals("now is the time", request.getFirstHeaderValue("Date"));
+
+    // Check content.
+    assertEquals("some content", stringFromStream(request.getBody()));
+  }
+
+  @Test
   public void testMultipleHeaders() throws IOException {
     String requestString =
         "POST /blah.html HTTP/2.0\r\n"

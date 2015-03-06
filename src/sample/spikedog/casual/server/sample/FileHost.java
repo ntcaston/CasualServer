@@ -20,7 +20,6 @@ public class FileHost extends CasualServer {
   public static void main(String[] args) {
     int port = 8080;
     String rootDir = null;
-    // TODO pull this out into util or something?
     try {
       for (int i = 0; i < args.length; i += 2) {
         String val = args[i];

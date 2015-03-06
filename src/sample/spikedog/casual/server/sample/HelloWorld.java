@@ -22,7 +22,6 @@ public class HelloWorld extends CasualServer{
    */
   public static void main(String[] args) {
     int port = 8080;
-    // TODO pull this out into util.
     try {
       for (int i = 0; i < args.length; i += 2) {
         String val = args[i];

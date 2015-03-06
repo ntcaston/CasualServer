@@ -13,7 +13,7 @@ import java.util.Set;
 
 /**
  * Basic HTTP response representation.
- * 
+ *
  * <em>Not</em> thread-safe.
  */
 // TODO need a state machine to deal with state soup... maybe?
@@ -35,13 +35,13 @@ public final class Response {
   private int writtenHeaderCount = 0;
   private InputStream body;
 
-  Response(OutputStream out) {
+  public Response(OutputStream out) {
     this.out = out;
   }
 
   /**
    * Sets the status line to be written to the underlying output stream.
-   * 
+   *
    * @throws IllegalStateException If a status line has already been flushed for this response.
    */
   public void setStatusLine(StatusLine statusLine) {
@@ -54,7 +54,7 @@ public final class Response {
   /**
    * Adds a header value for a name by appending it to existing values or creating a new value-list
    * if none exists.
-   * 
+   *
    * @throws IllegalStateException If a header with the provided name has already been flushed for
    *     this response or if the message body is already being written.
    */
@@ -74,7 +74,7 @@ public final class Response {
 
   /**
    * Sets a header name to a particular value. Overrides any existing value.
-   * 
+   *
    * @throws IllegalStateException If a header with the provided name has already been flushed for
    *     this response or if the message body is already being written.
    */
@@ -92,7 +92,7 @@ public final class Response {
 
   /**
    * Sets the message body of the response.
-   * 
+   *
    * @throws IllegalStateException If a message body is already being flushed.
    */
   public void setBody(InputStream body) {
@@ -108,7 +108,7 @@ public final class Response {
    * must be careful to ensure that they do not enter an illegal state by editing values which have
    * already been flushed, i.e. adjusting the Content-Type header if the Content-Type header was set
    * before flushing.
-   * 
+   *
    * @throws IllegalStateException If attempting to write data out of order, i.e. writing headers or
    *     body before status line is written.
    */

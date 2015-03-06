@@ -18,7 +18,7 @@ public final class FileServeHelper {
   static {
     MIME_TYPE_MAP.put("css", "text/css");
     MIME_TYPE_MAP.put("gif", "image/gif");
-    MIME_TYPE_MAP.put("html", "text/html; charset=utf-8");
+    MIME_TYPE_MAP.put("html", "text/html; charset=UTF-8");
     MIME_TYPE_MAP.put("jpeg", "image/jpeg");
     MIME_TYPE_MAP.put("jpg", "image/jpeg");
     MIME_TYPE_MAP.put("js", "text/javascript; charset=UTF-8");
@@ -42,9 +42,10 @@ public final class FileServeHelper {
   public static void serveFile(File file, Response response, String contentType)
       throws IOException {
     // TODO fix terrible security.
-    if (!file.exists() || file.isDirectory()) {
+    if (!file.isFile() || !file.exists()) {
       response.setStatusLine(new StatusLine(Constants.VERISON_HTTP_1_1, 404, "No such resource"));
       response.flush();
+      return;
     }
 
     FileInputStream fileInputStream = null;

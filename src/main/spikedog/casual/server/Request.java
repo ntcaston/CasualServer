@@ -7,7 +7,7 @@ import java.util.Map;
 
 /**
  * Basic HTTP request representation.
- * 
+ *
  * <em>Not</em> thread-safe.
  */
 public final class Request {
@@ -89,7 +89,7 @@ public final class Request {
           valueStringBuilder.append(",");
         }
       }
-      builder.append("\n" + header.getKey() + " : " + valueStringBuilder);
+      builder.append("\n" + header.getKey() + ": " + valueStringBuilder);
     }
     return builder.toString();
   }

@@ -65,4 +65,20 @@ public class RequestTest {
     assertEquals(headerValuesList, headerMap.get(headerName.toLowerCase()));
     assertEquals(newHeaderValuesList, headerMap.get(newHeaderName.toLowerCase()));
   }
+
+  @Test
+  public void testToString() {
+    Request.Builder builder = new Request.Builder();
+    RequestLine requestLine =
+        new RequestLine(Constants.METHOD_GET, "/foo", Constants.VERISON_HTTP_1_1);
+    builder.setRequestLine(requestLine);
+    List<String> values = new ArrayList<>();
+    values.add("a value");
+    builder.setHeader("Header", values);
+    Request request = builder.build();
+    String expectedString =
+        "GET /foo HTTP/1.1\n"
+        + "Header: a value";
+    assertEquals(expectedString.toLowerCase(), request.toString().toLowerCase());
+  }
 }

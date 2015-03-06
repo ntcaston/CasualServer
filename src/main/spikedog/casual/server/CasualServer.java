@@ -49,6 +49,7 @@ public class CasualServer {
           @Override
           public void run() {
             try {
+              // TODO lots of error handling.
               // TODO make configurable. Socket factory.
               requestSocket.setSoTimeout(10000);
               Request.Builder requestBuilder = new Request.Builder();

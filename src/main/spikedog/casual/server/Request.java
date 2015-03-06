@@ -61,7 +61,6 @@ public final class Request {
   /**
    * @return List of values for this header. Should not be modified.
    */
-  // TODO Immutable lists?
   public List<String> getHeaderValues(String key) {
     return headerMap.get(key.toLowerCase());
   }

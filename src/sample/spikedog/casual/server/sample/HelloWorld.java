@@ -20,7 +20,7 @@ public class HelloWorld extends CasualServer{
   /**
    * @param args --port to specify the socket port.
    */
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
     int port = 8080;
     try {
       for (int i = 0; i < args.length; i += 2) {

@@ -17,7 +17,7 @@ public class FileHost extends CasualServer {
   /**
    * @param args --root is the root directory to serve from, --port to set the port.
    */
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
     int port = 8080;
     String rootDir = null;
     try {

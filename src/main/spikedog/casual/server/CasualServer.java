@@ -39,21 +39,19 @@ public abstract class CasualServer {
     socket = new ServerSocket(port);
 
     while (true) {
-      Socket requestSocket = null;
       try {
-        requestSocket = socket.accept();
+        final Socket requestSocket = socket.accept();
         socketConfigResolver.resolveSocketConfig(requestSocket);
-        final Socket finalRequestSocket = requestSocket;
         Thread requestThread = new Thread(new Runnable() {
           @Override
           public void run() {
             Request request = null;
             try {
               request =
-                  StreamRequestBuilder.buildRequestFromStream(finalRequestSocket.getInputStream());
+                  StreamRequestBuilder.buildRequestFromStream(requestSocket.getInputStream());
 
               // Assign request to appropriate method.
-              Response response = new Response(finalRequestSocket.getOutputStream());
+              Response response = new Response(requestSocket.getOutputStream());
               String method = request.getRequestLine().getMethod();
               if (method.equalsIgnoreCase(Constants.METHOD_GET)) {
                 onGet(request, response);
@@ -68,6 +66,14 @@ public abstract class CasualServer {
               System.err.println("Error handling request for " + request);
               e.printStackTrace();
               throw new RuntimeException(e);
+            } finally {
+              if (requestSocket != null) {
+                try {
+                  requestSocket.close();
+                } catch (IOException e) {
+                  e.printStackTrace();
+                }
+              }
             }
           }
         });
@@ -76,10 +82,6 @@ public abstract class CasualServer {
         requestThread.start();
       } catch (Exception e) {
         e.printStackTrace();
-      } finally {
-        if (requestSocket != null) {
-          requestSocket.close();
-        }
       }
     }
   }

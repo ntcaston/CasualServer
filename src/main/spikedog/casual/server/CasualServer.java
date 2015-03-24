@@ -27,13 +27,13 @@ public abstract class CasualServer {
   private ServerSocket socket;
 
   protected CasualServer(int port) {
-    this(port, null, Executors.newSingleThreadExecutor());
+    this(port, Executors.newSingleThreadExecutor(), null);
   }
 
-  protected CasualServer(int port, SocketConfig config, ExecutorService requestExecutor) {
+  protected CasualServer(int port, ExecutorService requestExecutor, SocketConfig config) {
     this.port = port;
-    socketConfigResolver = new SocketConfigResolver(config);
     this.requestExecutor = requestExecutor;
+    socketConfigResolver = new SocketConfigResolver(config);
   }
 
   /**

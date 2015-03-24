@@ -11,6 +11,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.net.ServerSocketFactory;
+
 /**
  * Server class intended for handling HTTP requests. Intended for subclassing.
  *
@@ -21,6 +23,7 @@ public abstract class CasualServer {
       new StatusLine(Constants.VERISON_HTTP_1_1, 405, "Method not allowed.");
 
   private final int port;
+  private final ServerSocketFactory socketFactory;
   private final SocketConfigResolver socketConfigResolver;
   private final Executor requestExecutor;
 
@@ -31,9 +34,18 @@ public abstract class CasualServer {
   }
 
   protected CasualServer(int port, ExecutorService requestExecutor, SocketConfig config) {
+    this(port, requestExecutor, new SocketConfigResolver(config), ServerSocketFactory.getDefault());
+  }
+
+  CasualServer(
+      int port,
+      ExecutorService requestExecutor,
+      SocketConfigResolver configResolver,
+      ServerSocketFactory socketFactory) {
     this.port = port;
     this.requestExecutor = requestExecutor;
-    socketConfigResolver = new SocketConfigResolver(config);
+    this.socketConfigResolver = configResolver;
+    this.socketFactory = socketFactory;
   }
 
   /**
@@ -41,7 +53,7 @@ public abstract class CasualServer {
    * {@link #stop()}.
    */
   public final void start() throws IOException {
-    socket = new ServerSocket(port);
+    socket = socketFactory.createServerSocket(port);
 
     while (true) {
       try {

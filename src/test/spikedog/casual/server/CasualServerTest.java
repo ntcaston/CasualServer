@@ -54,32 +54,15 @@ public class CasualServerTest {
 
   @Test
   public void testBasicGet() throws Exception {
-    FakeServerSocket serverSocket = new FakeServerSocket();
-    fakeServerSocketFactory.expectPort(testPort, serverSocket);
-
-    new Thread(new Runnable() {
-
-      @Override
-      public void run() {
-        try {
-          server.start();
-        } catch (IOException e) {
-          e.printStackTrace();
-          fail();
-        }
-      }
-
-    }).start();
+    FakeServerSocket serverSocket = prepareServerSocket(fakeServerSocketFactory, testPort);
+    startServer(server);
 
     String requestString =
         "GET / HTTP/1.1\r\n"
         + "Host: foo\r\n"
         + "\r\n"
         + "content";
-    InputStream inputStream = new StringyInputStream(requestString);
-    OutputStream out = new StringyOutputStream();
-    FakeSocket fakeSocket = new FakeSocket(inputStream, out);
-    serverSocket.setSocket(fakeSocket);
+    makeFakeRequest(serverSocket, requestString);
 
     Thread.sleep(500);
 
@@ -92,10 +75,117 @@ public class CasualServerTest {
     assertEquals(Streams.stringFromStream(get.getBody()), "content");
   }
 
-  // TODO: All this class overriding is a bit loose. Should fix this up at some point.
+  @Test
+  public void testBasicPost() throws Exception {
+    FakeServerSocket serverSocket = prepareServerSocket(fakeServerSocketFactory, testPort);
+    startServer(server);
+
+    String requestString =
+        "POST / HTTP/1.1\r\n"
+        + "time: never,ever\r\n"
+        + "\r\n"
+        + "foo";
+    makeFakeRequest(serverSocket, requestString);
+
+    Thread.sleep(500);
+
+    Request post = server.getLastPost();
+    assertNotNull(post);
+    assertEquals(post.getRequestLine().getMethod(), "POST");
+    assertEquals(post.getRequestLine().getHttpVersion(), "HTTP/1.1");
+    assertEquals(post.getRequestLine().getUri(), "/");
+    assertEquals(post.getFirstHeaderValue("time"), "never");
+    assertEquals(Streams.stringFromStream(post.getBody()), "foo");
+  }
+
+  @Test
+  public void testBasicPut() throws Exception {
+    FakeServerSocket serverSocket = prepareServerSocket(fakeServerSocketFactory, testPort);
+    startServer(server);
+
+    String requestString =
+        "PUT /create HTTP/1.1\r\n"
+        + "time: never,ever\r\n"
+        + "content-encoding: gzip\r\n"
+        + "\r\n"
+        + "foo\nbar";
+    makeFakeRequest(serverSocket, requestString);
+
+    Thread.sleep(500);
+
+    Request put = server.getLastPut();
+    assertNotNull(put);
+    assertEquals(put.getRequestLine().getMethod(), "PUT");
+    assertEquals(put.getRequestLine().getHttpVersion(), "HTTP/1.1");
+    assertEquals(put.getRequestLine().getUri(), "/create");
+    assertEquals(put.getFirstHeaderValue("time"), "never");
+    assertEquals(put.getFirstHeaderValue("content-encodING"), "gzip");
+    assertEquals(Streams.stringFromStream(put.getBody()), "foo\nbar");
+  }
+
+  @Test
+  public void testUnsupported() throws Exception {
+    FakeServerSocket serverSocket = prepareServerSocket(fakeServerSocketFactory, testPort);
+    startServer(server);
+
+    String requestString =
+        "WAT /crazytown HTTP/1.1\r\n"
+        + "time: now\r\n"
+        + "\r\n"
+        + "foo";
+    StringyOutputStream out = makeFakeRequest(serverSocket, requestString);
+
+    Thread.sleep(500);
+
+    Request request = server.getLastUnsupported();
+    assertNotNull(request);
+    assertEquals(request.getRequestLine().getMethod(), "WAT");
+    assertEquals(request.getRequestLine().getHttpVersion(), "HTTP/1.1");
+    assertEquals(request.getRequestLine().getUri(), "/crazytown");
+    assertEquals(request.getFirstHeaderValue("time"), "now");
+    assertEquals(Streams.stringFromStream(request.getBody()), "foo");
+
+    // Just assert HTTP version and status code. Don't care so much about reason phrase.
+    String expectedOutStart = "HTTP/1.1 405";
+    assertEquals(expectedOutStart, out.getString().substring(0, expectedOutStart.length()));
+  }
+
+  private static FakeServerSocket prepareServerSocket(FakeServerSocketFactory factory, int port)
+      throws IOException {
+    FakeServerSocket result = new FakeServerSocket();
+    factory.expectPort(port, result);
+    return result;
+  }
+
+  private static void startServer(final CasualServer server) {
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          server.start();
+        } catch (IOException e) {
+          e.printStackTrace();
+          fail();
+        }
+      }
+
+    }).start();
+  }
+
+  private static StringyOutputStream makeFakeRequest(
+      FakeServerSocket fakeServerSocket, String requestString) {
+    InputStream inputStream = new StringyInputStream(requestString);
+    StringyOutputStream out = new StringyOutputStream();
+    FakeSocket fakeSocket = new FakeSocket(inputStream, out);
+    fakeServerSocket.setSocket(fakeSocket);
+    return out;
+  }
 
   private static final class TestServer extends CasualServer {
     private Request lastGet;
+    private Request lastPost;
+    private Request lastPut;
+    private Request lastUnsupported;
 
     public TestServer(
         int port,
@@ -109,12 +199,46 @@ public class CasualServerTest {
       return lastGet;
     }
 
+    public Request getLastPost() {
+      return lastPost;
+    }
+
+    public Request getLastPut() {
+      return lastPut;
+    }
+
+    public Request getLastUnsupported() {
+      return lastUnsupported;
+    }
+
     @Override
     protected void onGet(Request request, Response response) throws IOException {
-      super.onGet(request, response);
+      assertNotNull(response);
       lastGet = request;
     }
+
+    @Override
+    protected void onPost(Request request, Response response) throws IOException {
+      assertNotNull(response);
+      lastPost = request;
+    }
+
+    @Override
+    protected void onPut(Request request, Response response) throws IOException {
+      assertNotNull(response);
+      lastPut = request;
+    }
+
+    @Override
+    protected void onUnsupportedMethod(Request request, Response response) throws IOException {
+      // Invoke super. Test applies to default behaviour of unsupported requests.
+      super.onUnsupportedMethod(request, response);
+      assertNotNull(response);
+      lastUnsupported = request;
+    }
   }
+
+  // TODO: All this class overriding is a bit loose. Should fix this up at some point.
 
   private static final class CurrentThreadExecutorService extends AbstractExecutorService {
     @Override

@@ -16,7 +16,7 @@ import javax.net.ServerSocketFactory;
 /**
  * Server class intended for handling HTTP requests. Intended for subclassing.
  *
- * Currently only compatible with HTTP/1.1.
+ * <p>Currently only compatible with HTTP/1.1.
  */
 public abstract class CasualServer {
   private static final StatusLine UNSUPPORTED_METHOD_STATUS =

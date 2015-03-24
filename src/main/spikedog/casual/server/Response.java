@@ -14,7 +14,7 @@ import java.util.Set;
 /**
  * Basic HTTP response representation.
  *
- * <em>Not</em> thread-safe.
+ * <p><em>Not</em> thread-safe.
  */
 // TODO need a state machine to deal with state soup... maybe?
 public final class Response {

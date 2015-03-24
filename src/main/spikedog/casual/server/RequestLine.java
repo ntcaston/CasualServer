@@ -4,8 +4,8 @@ import java.util.Objects;
 
 /**
  * Immutable representation of HTTP request line.
- * 
- * See http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec5.1
+ *
+ * <p>See http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec5.1
  */
 public final class RequestLine {
   private final String method;

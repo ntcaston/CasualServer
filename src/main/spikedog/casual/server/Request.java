@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * Basic HTTP request representation.
  *
- * <em>Not</em> thread-safe.
+ * <p><em>Not</em> thread-safe.
  */
 public final class Request {
   public static final class Builder {

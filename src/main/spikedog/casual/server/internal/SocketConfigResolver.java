@@ -4,7 +4,6 @@ import spikedog.casual.server.SocketConfig;
 
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Applies the config in a {@link SocketConfig} object in an efficient manner for repeated socket
@@ -14,7 +13,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public final class SocketConfigResolver {
   private final SocketConfig config;
-  private final AtomicBoolean configResolved = new AtomicBoolean();
+
+  private boolean configResolved = false;
 
   private boolean keepAlive;
   private int socketTimeout;
@@ -32,9 +32,9 @@ public final class SocketConfigResolver {
    * time the config has been resolved.
    */
   public void configureSocket(Socket socket) throws SocketException {
-    if (!configResolved.get()) {
-      synchronized (configResolved) {
-        if (!configResolved.get()) {
+    if (!configResolved) {
+      synchronized (this) {
+        if (!configResolved) {
           keepAlive = socket.getKeepAlive();
           socketTimeout = socket.getSoTimeout();
           receiveBufferSize = socket.getReceiveBufferSize();
@@ -60,7 +60,7 @@ public final class SocketConfigResolver {
             Boolean configTcpNoDelay = config.getTcpNoDelay();
             tcpNoDelay = configTcpNoDelay == null ? socket.getTcpNoDelay() : configTcpNoDelay;
           }
-          configResolved.set(true);
+          configResolved = true;
         }
       }
     }

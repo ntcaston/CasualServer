@@ -29,10 +29,25 @@ public abstract class CasualServer {
 
   private ServerSocket socket;
 
+  /**
+   * Creates a server which executes all requests on a single thread. Subclasses which are
+   * threadsafe may call to {@link CasualServer(int, ExecutorService, SocketConfig)} to use multiple
+   * request threads.
+   *
+   * @param port The port which the server will bind to.
+   */
   protected CasualServer(int port) {
     this(port, Executors.newSingleThreadExecutor(), null);
   }
 
+  /**
+   * Creates a server with custom configuration.
+   *
+   * @param port The port which the server will bind to.
+   * @param requestExecutor The executor which request methods (i.e. {@link onGet}, {@link onPut})
+   *     will be called on.
+   * @param config Configuration to be applied to all server sockets.
+   */
   protected CasualServer(int port, ExecutorService requestExecutor, SocketConfig config) {
     this(port, requestExecutor, new SocketConfigResolver(config), ServerSocketFactory.getDefault());
   }
@@ -100,12 +115,12 @@ public abstract class CasualServer {
     }
   }
 
-  public void stop() throws IOException {
+  public final void stop() throws IOException {
     socket.close();
   }
 
   /**
-   * Should be overriden by subclasses to perform expected operation on an HTTP GET request. By
+   * Should be overriden by subclasses to perform desired operation on an HTTP GET request. By
    * default this method will call {@link #onUnsupportedMethod(Request, Response)}.
    */
   protected void onGet(Request request, Response response) throws IOException {

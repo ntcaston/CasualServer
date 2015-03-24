@@ -40,7 +40,7 @@ public class FileHost extends CasualServer {
     }
 
     System.out.println("Serving files in \"" + rootDir + "\" on port " + port);
-    new FileHost("html", 8080).run();
+    new FileHost("html", 8080).start();
   }
 
   public FileHost(String fileRootDir, int port) {

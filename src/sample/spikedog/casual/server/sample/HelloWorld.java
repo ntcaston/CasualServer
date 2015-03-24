@@ -35,7 +35,7 @@ public class HelloWorld extends CasualServer{
     }
 
     System.out.println("Hello world server started on port: " + port + "\n");
-    new HelloWorld(port).run();
+    new HelloWorld(port).start();
   }
 
   public HelloWorld(int port) {

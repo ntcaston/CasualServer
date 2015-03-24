@@ -35,7 +35,7 @@ public abstract class CasualServer {
    * Blocking call to run the server on endless loop. May be terminated with a call to
    * {@link #stop()}.
    */
-  public final void run() throws IOException {
+  public final void start() throws IOException {
     socket = new ServerSocket(port);
 
     while (true) {

@@ -7,6 +7,9 @@ import spikedog.casual.server.util.Constants;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Server class intended for handling HTTP requests. Intended for subclassing.
@@ -19,16 +22,18 @@ public abstract class CasualServer {
 
   private final int port;
   private final SocketConfigResolver socketConfigResolver;
+  private final Executor requestExecutor;
 
   private ServerSocket socket;
 
   protected CasualServer(int port) {
-    this(port, null);
+    this(port, null, Executors.newSingleThreadExecutor());
   }
 
-  protected CasualServer(int port, SocketConfig config) {
+  protected CasualServer(int port, SocketConfig config, ExecutorService requestExecutor) {
     this.port = port;
     socketConfigResolver = new SocketConfigResolver(config);
+    this.requestExecutor = requestExecutor;
   }
 
   /**
@@ -42,7 +47,7 @@ public abstract class CasualServer {
       try {
         final Socket requestSocket = socket.accept();
         socketConfigResolver.resolveSocketConfig(requestSocket);
-        Thread requestThread = new Thread(new Runnable() {
+        requestExecutor.execute(new Runnable() {
           @Override
           public void run() {
             Request request = null;
@@ -77,9 +82,6 @@ public abstract class CasualServer {
             }
           }
         });
-        requestThread.setName("request_thread");
-        requestThread.setDaemon(true);
-        requestThread.start();
       } catch (Exception e) {
         e.printStackTrace();
       }

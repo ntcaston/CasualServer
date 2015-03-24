@@ -6,6 +6,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
+  CasualServerTest.class,
   RequestLineTest.class,
   RequestTest.class,
   ResponseTest.class,

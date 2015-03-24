@@ -45,7 +45,7 @@ public abstract class CasualServer {
    *
    * @param port The port which the server will bind to.
    * @param requestExecutor The executor which request methods (i.e. {@link onGet}, {@link onPut})
-   *     will be called on.
+   *     will be executed on.
    * @param config Configuration to be applied to all server sockets.
    */
   protected CasualServer(int port, ExecutorService requestExecutor, SocketConfig config) {

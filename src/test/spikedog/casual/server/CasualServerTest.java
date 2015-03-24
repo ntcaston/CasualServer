@@ -34,13 +34,13 @@ import org.junit.Test;
 public class CasualServerTest {
   private final int testPort = 1234;
 
-  private TestServer server;
+  private TestServer testServer;
   private FakeServerSocketFactory fakeServerSocketFactory;
 
   @Before
   public void setUp() throws Exception {
     fakeServerSocketFactory = new FakeServerSocketFactory();
-    server = new TestServer(
+    testServer = new TestServer(
         testPort,
         new CurrentThreadExecutorService(),
         new SocketConfigResolver(null),
@@ -49,13 +49,13 @@ public class CasualServerTest {
 
   @After
   public void tearDown() throws Exception {
-    server.stop();
+    testServer.stop();
   }
 
   @Test
   public void testBasicGet() throws Exception {
     FakeServerSocket serverSocket = prepareServerSocket(fakeServerSocketFactory, testPort);
-    startServer(server);
+    startServer(testServer);
 
     String requestString =
         "GET / HTTP/1.1\r\n"
@@ -66,7 +66,7 @@ public class CasualServerTest {
 
     Thread.sleep(500);
 
-    Request get = server.getLastGet();
+    Request get = testServer.getLastGet();
     assertNotNull(get);
     assertEquals(get.getRequestLine().getMethod(), "GET");
     assertEquals(get.getRequestLine().getHttpVersion(), "HTTP/1.1");
@@ -78,7 +78,7 @@ public class CasualServerTest {
   @Test
   public void testBasicPost() throws Exception {
     FakeServerSocket serverSocket = prepareServerSocket(fakeServerSocketFactory, testPort);
-    startServer(server);
+    startServer(testServer);
 
     String requestString =
         "POST / HTTP/1.1\r\n"
@@ -89,7 +89,7 @@ public class CasualServerTest {
 
     Thread.sleep(500);
 
-    Request post = server.getLastPost();
+    Request post = testServer.getLastPost();
     assertNotNull(post);
     assertEquals(post.getRequestLine().getMethod(), "POST");
     assertEquals(post.getRequestLine().getHttpVersion(), "HTTP/1.1");
@@ -101,7 +101,7 @@ public class CasualServerTest {
   @Test
   public void testBasicPut() throws Exception {
     FakeServerSocket serverSocket = prepareServerSocket(fakeServerSocketFactory, testPort);
-    startServer(server);
+    startServer(testServer);
 
     String requestString =
         "PUT /create HTTP/1.1\r\n"
@@ -113,7 +113,7 @@ public class CasualServerTest {
 
     Thread.sleep(500);
 
-    Request put = server.getLastPut();
+    Request put = testServer.getLastPut();
     assertNotNull(put);
     assertEquals(put.getRequestLine().getMethod(), "PUT");
     assertEquals(put.getRequestLine().getHttpVersion(), "HTTP/1.1");
@@ -126,7 +126,7 @@ public class CasualServerTest {
   @Test
   public void testUnsupported() throws Exception {
     FakeServerSocket serverSocket = prepareServerSocket(fakeServerSocketFactory, testPort);
-    startServer(server);
+    startServer(testServer);
 
     String requestString =
         "WAT /crazytown HTTP/1.1\r\n"
@@ -137,7 +137,7 @@ public class CasualServerTest {
 
     Thread.sleep(500);
 
-    Request request = server.getLastUnsupported();
+    Request request = testServer.getLastUnsupported();
     assertNotNull(request);
     assertEquals(request.getRequestLine().getMethod(), "WAT");
     assertEquals(request.getRequestLine().getHttpVersion(), "HTTP/1.1");

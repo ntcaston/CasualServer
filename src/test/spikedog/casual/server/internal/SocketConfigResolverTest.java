@@ -36,7 +36,7 @@ public class SocketConfigResolverTest {
         .build();
     Socket socket = new Socket();
     SocketConfigResolver resolver = new SocketConfigResolver(config);
-    resolver.resolveSocketConfig(socket);
+    resolver.configureSocket(socket);
     assertEquals(false, socket.getKeepAlive());
     assertEquals(10000, socket.getReceiveBufferSize());
     assertEquals(20000, socket.getSendBufferSize());
@@ -45,8 +45,8 @@ public class SocketConfigResolverTest {
     socket.close();
 
     socket = new Socket();
-    resolver.resolveSocketConfig(socket);
-    resolver.resolveSocketConfig(socket);
+    resolver.configureSocket(socket);
+    resolver.configureSocket(socket);
     assertEquals(false, socket.getKeepAlive());
     assertEquals(10000, socket.getReceiveBufferSize());
     assertEquals(20000, socket.getSendBufferSize());
@@ -59,7 +59,7 @@ public class SocketConfigResolverTest {
   public void testResolveSocket_null() throws Exception {
     Socket socket = new Socket();
     SocketConfigResolver resolver = new SocketConfigResolver(null);
-    resolver.resolveSocketConfig(socket);
+    resolver.configureSocket(socket);
     assertEquals(defaultKeepAlive, socket.getKeepAlive());
     assertEquals(defaultReceiveBufferSize, socket.getReceiveBufferSize());
     assertEquals(defaultSendBufferSize, socket.getSendBufferSize());

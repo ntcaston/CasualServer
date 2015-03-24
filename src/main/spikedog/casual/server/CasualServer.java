@@ -46,7 +46,7 @@ public abstract class CasualServer {
     while (true) {
       try {
         final Socket requestSocket = socket.accept();
-        socketConfigResolver.resolveSocketConfig(requestSocket);
+        socketConfigResolver.configureSocket(requestSocket);
         requestExecutor.execute(new Runnable() {
           @Override
           public void run() {

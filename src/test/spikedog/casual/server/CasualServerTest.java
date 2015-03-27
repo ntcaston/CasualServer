@@ -66,7 +66,7 @@ public class CasualServerTest {
 
     Thread.sleep(500);
 
-    Request get = testServer.getLastGet();
+    Request get = testServer.lastGet;
     assertNotNull(get);
     assertEquals(get.getRequestLine().getMethod(), "GET");
     assertEquals(get.getRequestLine().getHttpVersion(), "HTTP/1.1");
@@ -89,7 +89,7 @@ public class CasualServerTest {
 
     Thread.sleep(500);
 
-    Request post = testServer.getLastPost();
+    Request post = testServer.lastPost;
     assertNotNull(post);
     assertEquals(post.getRequestLine().getMethod(), "POST");
     assertEquals(post.getRequestLine().getHttpVersion(), "HTTP/1.1");
@@ -113,7 +113,7 @@ public class CasualServerTest {
 
     Thread.sleep(500);
 
-    Request put = testServer.getLastPut();
+    Request put = testServer.lastPut;
     assertNotNull(put);
     assertEquals(put.getRequestLine().getMethod(), "PUT");
     assertEquals(put.getRequestLine().getHttpVersion(), "HTTP/1.1");
@@ -121,6 +121,98 @@ public class CasualServerTest {
     assertEquals(put.getFirstHeaderValue("time"), "never");
     assertEquals(put.getFirstHeaderValue("content-encodING"), "gzip");
     assertEquals(Streams.stringFromStream(put.getBody()), "foo\nbar");
+  }
+
+  @Test
+  public void testBasicDelete() throws Exception {
+    FakeServerSocket serverSocket = prepareServerSocket(fakeServerSocketFactory, testPort);
+    startServer(testServer);
+
+    String requestString =
+        "DELETE /foo HTTP/1.1\r\n"
+        + "time: now\r\n"
+        + "\r\n"
+        + "foo";
+    makeFakeRequest(serverSocket, requestString);
+
+    Thread.sleep(500);
+
+    Request delete = testServer.lastDelete;
+    assertNotNull(delete);
+    assertEquals(delete.getRequestLine().getMethod(), "DELETE");
+    assertEquals(delete.getRequestLine().getHttpVersion(), "HTTP/1.1");
+    assertEquals(delete.getRequestLine().getUri(), "/foo");
+    assertEquals(delete.getFirstHeaderValue("time"), "now");
+    assertEquals(Streams.stringFromStream(delete.getBody()), "foo");
+  }
+
+  @Test
+  public void testBasicHead() throws Exception {
+    FakeServerSocket serverSocket = prepareServerSocket(fakeServerSocketFactory, testPort);
+    startServer(testServer);
+
+    String requestString =
+        "HEAD /foo HTTP/1.1\r\n"
+        + "time: now\r\n"
+        + "\r\n"
+        + "foo";
+    makeFakeRequest(serverSocket, requestString);
+
+    Thread.sleep(500);
+
+    Request head = testServer.lastHead;
+    assertNotNull(head);
+    assertEquals(head.getRequestLine().getMethod(), "HEAD");
+    assertEquals(head.getRequestLine().getHttpVersion(), "HTTP/1.1");
+    assertEquals(head.getRequestLine().getUri(), "/foo");
+    assertEquals(head.getFirstHeaderValue("time"), "now");
+    assertEquals(Streams.stringFromStream(head.getBody()), "foo");
+  }
+
+  @Test
+  public void testBasicOptions() throws Exception {
+    FakeServerSocket serverSocket = prepareServerSocket(fakeServerSocketFactory, testPort);
+    startServer(testServer);
+
+    String requestString =
+        "OPTIONS /foo HTTP/1.1\r\n"
+        + "time: now\r\n"
+        + "\r\n"
+        + "foo";
+    makeFakeRequest(serverSocket, requestString);
+
+    Thread.sleep(500);
+
+    Request options = testServer.lastOptions;
+    assertNotNull(options);
+    assertEquals(options.getRequestLine().getMethod(), "OPTIONS");
+    assertEquals(options.getRequestLine().getHttpVersion(), "HTTP/1.1");
+    assertEquals(options.getRequestLine().getUri(), "/foo");
+    assertEquals(options.getFirstHeaderValue("time"), "now");
+    assertEquals(Streams.stringFromStream(options.getBody()), "foo");
+  }
+
+  @Test
+  public void testBasicTrace() throws Exception {
+    FakeServerSocket serverSocket = prepareServerSocket(fakeServerSocketFactory, testPort);
+    startServer(testServer);
+
+    String requestString =
+        "TRACE /foo HTTP/1.1\r\n"
+        + "time: now\r\n"
+        + "\r\n"
+        + "foo";
+    makeFakeRequest(serverSocket, requestString);
+
+    Thread.sleep(500);
+
+    Request trace = testServer.lastTrace;
+    assertNotNull(trace);
+    assertEquals(trace.getRequestLine().getMethod(), "TRACE");
+    assertEquals(trace.getRequestLine().getHttpVersion(), "HTTP/1.1");
+    assertEquals(trace.getRequestLine().getUri(), "/foo");
+    assertEquals(trace.getFirstHeaderValue("time"), "now");
+    assertEquals(Streams.stringFromStream(trace.getBody()), "foo");
   }
 
   @Test
@@ -137,7 +229,7 @@ public class CasualServerTest {
 
     Thread.sleep(500);
 
-    Request request = testServer.getLastUnsupported();
+    Request request = testServer.lastUnsupported;
     assertNotNull(request);
     assertEquals(request.getRequestLine().getMethod(), "WAT");
     assertEquals(request.getRequestLine().getHttpVersion(), "HTTP/1.1");
@@ -185,6 +277,10 @@ public class CasualServerTest {
     private Request lastGet;
     private Request lastPost;
     private Request lastPut;
+    private Request lastDelete;
+    private Request lastHead;
+    private Request lastOptions;
+    private Request lastTrace;
     private Request lastUnsupported;
 
     public TestServer(
@@ -193,22 +289,6 @@ public class CasualServerTest {
         SocketConfigResolver configResolver,
         ServerSocketFactory socketFactory) {
       super(port, requestExecutor, configResolver, socketFactory);
-    }
-
-    public Request getLastGet() {
-      return lastGet;
-    }
-
-    public Request getLastPost() {
-      return lastPost;
-    }
-
-    public Request getLastPut() {
-      return lastPut;
-    }
-
-    public Request getLastUnsupported() {
-      return lastUnsupported;
     }
 
     @Override
@@ -227,6 +307,30 @@ public class CasualServerTest {
     protected void onPut(Request request, Response response) throws IOException {
       assertNotNull(response);
       lastPut = request;
+    }
+
+    @Override
+    protected void onDelete(Request request, Response response) throws IOException {
+      assertNotNull(response);
+      lastDelete = request;
+    }
+
+    @Override
+    protected void onHead(Request request, Response response) throws IOException {
+      assertNotNull(response);
+      lastHead = request;
+    }
+
+    @Override
+    protected void onOptions(Request request, Response response) throws IOException {
+      assertNotNull(response);
+      lastOptions = request;
+    }
+
+    @Override
+    protected void onTrace(Request request, Response response) throws IOException {
+      assertNotNull(response);
+      lastTrace = request;
     }
 
     @Override

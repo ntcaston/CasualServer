@@ -91,6 +91,14 @@ public abstract class CasualServer {
                 onPost(request, response);
               } else if (method.equalsIgnoreCase(Constants.METHOD_PUT)) {
                 onPut(request, response);
+              } else if (method.equalsIgnoreCase(Constants.METHOD_DELETE)) {
+                onDelete(request, response);
+              } else if (method.equalsIgnoreCase(Constants.METHOD_HEAD)) {
+                onHead(request, response);
+              } else if (method.equalsIgnoreCase(Constants.METHOD_OPTIONS)) {
+                onOptions(request, response);
+              } else if (method.equalsIgnoreCase(Constants.METHOD_TRACE)) {
+                onTrace(request, response);
               } else {
                 onUnsupportedMethod(request, response);
               }
@@ -138,6 +146,34 @@ public abstract class CasualServer {
    * Equivalent to {@link #onGet(Request, Response)} for HTTP PUT.
    */
   protected void onPut(Request request, Response response) throws IOException {
+    onUnsupportedMethod(request, response);
+  }
+
+  /**
+   * Equivalent to {@link #onGet(Request, Response)} for HTTP DELETE.
+   */
+  protected void onDelete(Request request, Response response) throws IOException {
+    onUnsupportedMethod(request, response);
+  }
+
+  /**
+   * Equivalent to {@link #onGet(Request, Response)} for HTTP HEAD.
+   */
+  protected void onHead(Request request, Response response) throws IOException {
+    onUnsupportedMethod(request, response);
+  }
+
+  /**
+   * Equivalent to {@link #onGet(Request, Response)} for HTTP OPTIONS.
+   */
+  protected void onOptions(Request request, Response response) throws IOException {
+    onUnsupportedMethod(request, response);
+  }
+
+  /**
+   * Equivalent to {@link #onGet(Request, Response)} for HTTP TRACE.
+   */
+  protected void onTrace(Request request, Response response) throws IOException {
     onUnsupportedMethod(request, response);
   }
 

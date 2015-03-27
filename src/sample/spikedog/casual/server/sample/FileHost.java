@@ -54,9 +54,7 @@ public class FileHost extends CasualServer {
     String fileUri = request.getRequestLine().getUri();
     if (fileUri.equals("/")) {
       fileUri = "index.html";
-    }
-
-    if (fileUri.charAt(0) == '/') {
+    } else if (fileUri.charAt(0) == '/') {
       fileUri = fileUri.substring(1);
     }
 

@@ -41,7 +41,6 @@ public final class FileServeHelper {
 
   public static void serveFile(File file, Response response, String contentType)
       throws IOException {
-    // TODO fix terrible security.
     if (!file.isFile() || !file.exists()) {
       response.setStatusLine(new StatusLine(Constants.VERISON_HTTP_1_1, 404, "No such resource"));
       response.flush();
@@ -60,11 +59,12 @@ public final class FileServeHelper {
       response.addHeader(Constants.HEADER_CONTENT_LENGTH, "" + contentLength);
       response.setBody(fileInputStream);
       response.setStatusLine(new StatusLine(Constants.VERISON_HTTP_1_1, 200, "OK"));
-      response.flush();
     } catch (Exception e) {
       e.printStackTrace();
       response.setStatusLine(new StatusLine(Constants.VERISON_HTTP_1_1, 500, e.getMessage()));
+      response.setBody(null);
     } finally {
+      response.flush();
       if (fileInputStream != null) {
         fileInputStream.close();
       }

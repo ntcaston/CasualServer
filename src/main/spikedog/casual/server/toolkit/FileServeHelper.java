@@ -42,6 +42,7 @@ public final class FileServeHelper {
   public static void serveFile(File file, Response response, String contentType)
       throws IOException {
     if (!file.isFile() || !file.exists()) {
+      System.err.println("Attempt to serve file at " + file.getAbsolutePath() + ". Not found.");
       response.setStatusLine(new StatusLine(Constants.VERISON_HTTP_1_1, 404, "No such resource"));
       response.flush();
       return;

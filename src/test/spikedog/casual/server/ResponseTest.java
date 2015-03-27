@@ -52,22 +52,11 @@ public class ResponseTest {
         "Content-Length: 51\n" +
         "Date: now\n";
     assertEquals(expected, out.getString());
-
-    response.addHeader("Content-Encoding", "yup");
     response.flush();
-    expected += "Content-Encoding: yup\n";
-    assertEquals(expected, out.getString());
 
     try {
-      response.addHeader("content-type", "blob");
+      response.addHeader("Content-Encoding", "yup");
       fail("Modified header after flushing to output stream");
-    } catch (IllegalStateException e) {
-      // Expected.
-    }
-
-    try {
-      response.setHeader("date", "tomorrow");
-      fail("Set header after flushing to output stream");
     } catch (IllegalStateException e) {
       // Expected.
     }
@@ -80,9 +69,6 @@ public class ResponseTest {
     response.setStatusLine(new StatusLine("HTTP/1.1", 200, "OK"));
     response.addHeader("Content-Type", "text/plain");
     String content = "This is the message body content";
-
-    // Add unnecessary flush to ensure state is handled correctly.
-    response.flush();
     InputStream contentStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
     response.setBody(contentStream);
     response.flush();

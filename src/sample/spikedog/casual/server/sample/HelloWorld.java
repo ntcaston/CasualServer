@@ -62,6 +62,5 @@ public class HelloWorld extends CasualServer{
       response.setBody(null);
     }
     response.flush();
-    System.out.println("\n");
   }
 }

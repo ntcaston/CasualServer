@@ -77,6 +77,10 @@ public final class Response {
     headers.put(name, values);
   }
 
+  public void clearAllHeaders() {
+    headers.clear();
+  }
+
   /**
    * Sets the message body of the response.
    *
@@ -137,5 +141,9 @@ public final class Response {
       }
       out.close();
     }
+  }
+
+  boolean hasFlushed() {
+    return flushed.get();
   }
 }

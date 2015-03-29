@@ -78,12 +78,13 @@ public abstract class CasualServer {
           @Override
           public void run() {
             Request request = null;
+            Response response = null;
             try {
+              response = new Response(requestSocket.getOutputStream());
               request =
                   StreamRequestBuilder.buildRequestFromStream(requestSocket.getInputStream());
 
               // Assign request to appropriate method.
-              Response response = new Response(requestSocket.getOutputStream());
               String method = request.getRequestLine().getMethod();
               if (method.equalsIgnoreCase(Constants.METHOD_GET)) {
                 onGet(request, response);
@@ -103,7 +104,18 @@ public abstract class CasualServer {
                 onUnsupportedMethod(request, response);
               }
             } catch (Exception e) {
-              // TODO check if response flushed successfully. If not write a fail response.
+              if (response != null && !response.hasFlushed()) {
+                response.setStatusLine(
+                    new StatusLine(Constants.VERISON_HTTP_1_1, 500, "Server error"));
+                response.clearAllHeaders();
+                response.setBody(null);
+                try {
+                  response.flush();
+                } catch (IOException e1) {
+                  // We tried... giving up.
+                  e1.printStackTrace();
+                }
+              }
               System.err.println("Error handling request for " + request);
               e.printStackTrace();
               throw new RuntimeException(e);

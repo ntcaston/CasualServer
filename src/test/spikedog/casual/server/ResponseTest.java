@@ -63,6 +63,28 @@ public class ResponseTest {
   }
 
   @Test
+  public void testHeaders_clear() throws IOException {
+    StringyOutputStream out = new StringyOutputStream();
+    Response response = new Response(out);
+
+    // Set status line to avoid IllegalStateException.
+    response.setStatusLine(new StatusLine("HTTP/1.1", 200, "OK"));
+
+    response.addHeader("Content-Type", "text/plain");
+    response.addHeader("Content-Type", "UTF-8");
+    response.addHeader("Content-Length", "51");
+
+    response.clearAllHeaders();
+    response.setHeader("Date", "now");
+    response.flush();
+
+    String expected = "HTTP/1.1 200 OK\n" +
+        "Date: now\n";
+    assertEquals(expected, out.getString());
+    response.flush();
+  }
+
+  @Test
   public void testMessageBody() throws IOException {
     StringyOutputStream out = new StringyOutputStream();
     Response response = new Response(out);

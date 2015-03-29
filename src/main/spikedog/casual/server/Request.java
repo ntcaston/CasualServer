@@ -50,6 +50,7 @@ public final class Request {
     return requestLine;
   }
 
+  // TODO add convenience getter for common headers, i.e. content length.
   public String getFirstHeaderValue(String key) {
     List<String> vals = getHeaderValues(key);
     if (vals == null || vals.isEmpty()) {

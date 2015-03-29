@@ -103,6 +103,7 @@ public abstract class CasualServer {
                 onUnsupportedMethod(request, response);
               }
             } catch (Exception e) {
+              // TODO check if response flushed successfully. If not write a fail response.
               System.err.println("Error handling request for " + request);
               e.printStackTrace();
               throw new RuntimeException(e);

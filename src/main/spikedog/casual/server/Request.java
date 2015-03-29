@@ -1,5 +1,7 @@
 package spikedog.casual.server;
 
+import spikedog.casual.server.util.Constants;
+
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -50,13 +52,31 @@ public final class Request {
     return requestLine;
   }
 
-  // TODO add convenience getter for common headers, i.e. content length.
   public String getFirstHeaderValue(String key) {
     List<String> vals = getHeaderValues(key);
     if (vals == null || vals.isEmpty()) {
       return null;
     }
     return vals.get(0);
+  }
+
+  /**
+   * @return The value of the content length header. If not known, or the value cannot be parsed,
+   *     returns -1.
+   */
+  public long getContentLength() {
+    String contentLengthString = getFirstHeaderValue(Constants.HEADER_CONTENT_LENGTH);
+    if (contentLengthString == null) {
+      return -1;
+    }
+
+    long result = -1;
+    try {
+      result = Long.parseLong(contentLengthString);
+    } catch (NumberFormatException e) {
+      // Unable to parse long. Leave result as -1 to represent unknown content length.
+    }
+    return result;
   }
 
   /**

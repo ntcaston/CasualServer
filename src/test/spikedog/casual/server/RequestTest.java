@@ -67,6 +67,45 @@ public class RequestTest {
   }
 
   @Test
+  public void testContentLength() {
+    Request.Builder builder = new Request.Builder();
+    String value = "123";
+    List<String> values = new ArrayList<String>(1);
+    values.add(value);
+    builder.setHeader("content-Length", values);
+    Request request = builder.build();
+    assertEquals(123L, request.getContentLength());
+
+    builder = new Request.Builder();
+    value = "0";
+    values = new ArrayList<String>(1);
+    values.add(value);
+    builder.setHeader("content-Length", values);
+    request = builder.build();
+    assertEquals(0L, request.getContentLength());
+
+    builder = new Request.Builder();
+    value = "-1";
+    values = new ArrayList<String>(1);
+    values.add(value);
+    builder.setHeader("content-Length", values);
+    request = builder.build();
+    assertEquals(-1L, request.getContentLength());
+
+    builder = new Request.Builder();
+    value = "thirty-two";
+    values = new ArrayList<String>(1);
+    values.add(value);
+    builder.setHeader("content-Length", values);
+    request = builder.build();
+    assertEquals(-1L, request.getContentLength());
+
+    builder = new Request.Builder();
+    request = builder.build();
+    assertEquals(-1L, request.getContentLength());
+  }
+
+  @Test
   public void testToString() {
     Request.Builder builder = new Request.Builder();
     RequestLine requestLine =

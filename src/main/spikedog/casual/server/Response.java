@@ -137,7 +137,9 @@ public final class Response {
           valueStringBuilder.append(",");
         }
       }
-      out.write((name + ": " + valueStringBuilder.toString()).getBytes());
+
+      String headerString = String.format("%s:%s", name, valueStringBuilder.toString());
+      out.write(headerString.getBytes());
       out.write(CRLF_BYTES);
     }
 

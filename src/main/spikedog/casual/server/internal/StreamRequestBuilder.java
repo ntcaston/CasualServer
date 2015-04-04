@@ -22,7 +22,6 @@ public class StreamRequestBuilder {
   /**
    * Constructs a {@link Request} from the data provided by an {@link InputStream}.
    */
-  // TODO: This method can be optimised significantly from its current state.
   public static Request buildRequestFromStream(InputStream in) throws IOException {
     Request.Builder requestBuilder = new Request.Builder();
     RequestLine requestLine = RequestLine.fromString(readLine(in));

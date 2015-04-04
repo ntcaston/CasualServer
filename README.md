@@ -1,6 +1,6 @@
 # CasualServer
 
-A super basic HTTP server implementation in Java. Doesn't have much in the way of dependencies.
+A super basic HTTP server implementation in Java. Doesn't have any dependencies.
 
 Not intended for any serious or critical usage. Primarily made for basic home usage, debug server and other shenanigans.
 

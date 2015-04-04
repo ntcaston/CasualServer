@@ -43,22 +43,20 @@ public final class SocketConfigResolver {
 
           if (config != null) {
             Boolean configKeepAlive = config.getKeepAlive();
-            keepAlive = configKeepAlive == null ? socket.getKeepAlive() : configKeepAlive;
+            keepAlive = configKeepAlive == null ? keepAlive : configKeepAlive;
 
             Integer configSocketTimeout = config.getSocketTimeout();
-            socketTimeout = configSocketTimeout == null
-                ? socket.getSoTimeout() : configSocketTimeout;
+            socketTimeout = configSocketTimeout == null ? socketTimeout : configSocketTimeout;
 
             Integer configReceiveBufferSize = config.getReceiveBufferSize();
             receiveBufferSize = configReceiveBufferSize == null
-                ? socket.getReceiveBufferSize() : configReceiveBufferSize;
+                ? receiveBufferSize : configReceiveBufferSize;
 
             Integer configSendBufferSize = config.getSendBufferSize();
-            sendBufferSize = configSendBufferSize == null
-                ? socket.getSendBufferSize() : configSendBufferSize;
+            sendBufferSize = configSendBufferSize == null ? sendBufferSize : configSendBufferSize;
 
             Boolean configTcpNoDelay = config.getTcpNoDelay();
-            tcpNoDelay = configTcpNoDelay == null ? socket.getTcpNoDelay() : configTcpNoDelay;
+            tcpNoDelay = configTcpNoDelay == null ? tcpNoDelay : configTcpNoDelay;
           }
           configResolved = true;
         }

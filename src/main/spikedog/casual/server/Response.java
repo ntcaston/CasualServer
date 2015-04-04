@@ -15,7 +15,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p><em>Not</em> thread-safe.
  */
 public final class Response {
-  private static final byte[] NEW_LINE_BYTES = new String("\n").getBytes();
+  // Bytes for carriage return followed by line-feed.
+  private static final byte[] CRLF_BYTES = new String("\r\n").getBytes();
   private static final int BUFFER_SIZE = 4096;
 
   private final OutputStream out;
@@ -114,7 +115,7 @@ public final class Response {
 
     // Write status line.
     out.write(statusLine.toString().getBytes());
-    out.write(NEW_LINE_BYTES);
+    out.write(CRLF_BYTES);
 
     // Write headers.
     for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
@@ -128,12 +129,12 @@ public final class Response {
         }
       }
       out.write((name + ": " + valueStringBuilder.toString()).getBytes());
-      out.write(NEW_LINE_BYTES);
+      out.write(CRLF_BYTES);
     }
 
     // Write body.
     if (body != null) {
-      out.write(NEW_LINE_BYTES);
+      out.write(CRLF_BYTES);
       int n = 0;
       byte[] buffer = new byte[BUFFER_SIZE];
       while ((n = body.read(buffer)) > 0) {

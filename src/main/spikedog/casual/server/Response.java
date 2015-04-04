@@ -20,12 +20,10 @@ public final class Response {
   private static final int BUFFER_SIZE = 4096;
 
   private final OutputStream out;
-
-  // TODO Storing like this results in a lot of unnecessary list instantiations. Optimise this once
-  // this class is well tested.
+  private final AtomicBoolean flushed = new AtomicBoolean();
   private final LinkedHashMap<String, List<String>> headers =
       new LinkedHashMap<String, List<String>>();
-  private final AtomicBoolean flushed = new AtomicBoolean();
+
   private StatusLine statusLine;
   private InputStream body;
 
@@ -42,6 +40,7 @@ public final class Response {
     if (flushed.get()) {
       throw new IllegalStateException("Attempted to set status line after response flushed.");
     }
+
     this.statusLine = statusLine;
   }
 
@@ -70,15 +69,24 @@ public final class Response {
    */
   public void setHeader(String name, String value) {
     if (flushed.get()) {
-      throw new IllegalStateException(
-          "Attempted to set a header after response flushed.");
+      throw new IllegalStateException("Attempted to set a header after response flushed.");
     }
+
     List<String> values = new ArrayList<String>(1);
     values.add(value);
     headers.put(name, values);
   }
 
+  /**
+   * Removes all headers which have been set on this response.
+   *
+   * @throws IllegalStateException If this response has already been flushed.
+   */
   public void clearAllHeaders() {
+    if (flushed.get()) {
+      throw new IllegalStateException("Attempted to clear headers after response fluhsed.");
+    }
+
     headers.clear();
   }
 
@@ -92,6 +100,7 @@ public final class Response {
       throw new IllegalStateException(
           "Attempted to change message body after begun writing body to output.");
     }
+
     this.body = body;
   }
 

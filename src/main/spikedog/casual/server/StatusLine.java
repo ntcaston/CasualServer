@@ -30,6 +30,10 @@ public final class StatusLine {
       return false;
     }
 
+    if (obj == this) {
+      return true;
+    }
+
     if (!(obj instanceof StatusLine)) {
       return false;
     }

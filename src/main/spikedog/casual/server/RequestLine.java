@@ -46,13 +46,17 @@ public final class RequestLine {
 
   @Override
   public String toString() {
-    return method + " " + uri + " " + httpVersion;
+    return String.format("%s %s %s", method, uri, httpVersion);
   }
 
   @Override
   public boolean equals(Object other) {
     if (other == null) {
       return false;
+    }
+
+    if (other == this) {
+      return true;
     }
 
     if (!(other instanceof RequestLine)) {

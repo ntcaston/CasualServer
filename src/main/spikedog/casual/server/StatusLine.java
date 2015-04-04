@@ -19,6 +19,9 @@ public final class StatusLine {
     this.reasonPhrase = reasonPhrase;
   }
 
+  /**
+   * Gives the string representation of this status line as defined by the HTTP spec.
+   */
   @Override
   public String toString() {
     return String.format("%s %s %s", httpVersion, statusCode, reasonPhrase);
